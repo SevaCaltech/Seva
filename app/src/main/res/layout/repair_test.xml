@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="@color/colorPrimaryTransparent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/testButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Test Repair"
+        android:textColor="@color/icons"
+        android:elevation="10dp"
+        android:minHeight="0dp"
+        android:paddingTop="11dp"
+        android:paddingBottom="9dp"
+        android:paddingRight="15dp"
+        android:paddingLeft="15dp"
+        android:background="@color/accent"/>
+
+    <Button
+        android:id="@+id/doneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Done"
+        android:textColor="@color/icons"
+        android:elevation="10dp"
+        android:minHeight="0dp"
+        android:paddingTop="11dp"
+        android:paddingBottom="9dp"
+        android:paddingRight="15dp"
+        android:paddingLeft="15dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/accent"/>
+
+</LinearLayout>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12sp"
+    android:orientation="vertical"
+    android:elevation="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/mapButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="23dp"
+            android:src="@drawable/baseline_map_24" />
+
+        <ImageView
+            android:id="@+id/sevaIcon"
+            android:layout_width="37.91dp"
+            android:layout_height="37.91dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginLeft="13dp"
+            android:src="@drawable/circle_blue"/>
+
+        <ImageView
+            android:layout_width="18.73dp"
+            android:layout_height="23dp"
+            android:layout_marginLeft="23dp"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/icon_seva_small"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/notificationText"
+            android:layout_toRightOf="@+id/sevaIcon"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="16.09dp"
+            android:text="toiletId"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_text"
+            android:elevation="20dp">
+        </TextView>
+
+        <TextView
+            android:id="@+id/notificationDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="6/22/2018"
+            android:layout_toRightOf="@+id/sevaIcon"
+            android:layout_marginTop="40dp"
+            android:paddingLeft="16.09dp"
+            android:paddingBottom="15dp"
+            android:textColor="@color/secondary_text"/>
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/notificationMap"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:visibility="gone"
+            android:background="@color/colorPrimaryTransparent"
+            android:layout_marginTop="70dp"
+            map:liteMode="true"
+            map:mapType="normal"
+            map:cameraZoom="15"/>
+
+        <ImageView
+            android:id="@+id/speechMapButton"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="290dp"
+            android:layout_marginRight="24dp"
+            android:src="@drawable/floating_sound_button" />
+
+        <TextView
+            android:id="@+id/titleDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Error: Broken Pump"
+            android:textStyle="bold"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"
+            android:layout_marginTop="335dp"
+            android:layout_marginLeft="32dp"/>
+
+        <TextView
+            android:id="@+id/toolDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tools: Screw driver, hex socket driver"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"
+            android:layout_marginTop="355dp"
+            android:layout_marginLeft="32dp"/>
+
+        <TextView
+            android:id="@+id/timeDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Average Time: 00:30"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"
+            android:layout_marginTop="375dp"
+            android:layout_marginLeft="32dp"/>
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location: By the tree"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"
+            android:layout_marginTop="395dp"
+            android:layout_marginLeft="32dp"/>
+
+        <Button
+            android:id="@+id/declineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DECLINE"
+            android:layout_marginTop="440dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginBottom="15dp"
+            android:background="@android:color/transparent"
+            android:textColor="@color/accent"
+            android:minHeight="0dp"
+            android:minWidth="0dp"/>
+        <Button
+            android:id="@+id/acceptButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ACCEPT"
+            android:layout_marginTop="440dp"
+            android:background="@android:color/transparent"
+            android:layout_marginLeft="116dp"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/accent"
+            android:minWidth="0dp"
+            android:minHeight="0dp"/>
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/nav_header_height"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical"
+    android:elevation="10dp"
+    android:gravity="center"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:layout_width="32.41dp"
+        android:layout_height="36.7dp"
+        android:src="@drawable/fill_1"
+        android:layout_marginTop="20dp"
+       />
+    <!--android:layout_marginLeft="60dp"-->
+    <!--android:layout_marginTop="76.34dp"-->
+
+    <ImageView
+        android:layout_width="32.24dp"
+        android:layout_height="36.64dp"
+        android:layout_marginLeft="48.41dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/fill_3" />
+    <!--android:layout_marginLeft="107.43dp"-->
+    <!--android:layout_marginTop="76.34dp"-->
+
+    <ImageView
+        android:layout_width="20.16dp"
+        android:layout_height="36.88dp"
+        android:layout_marginLeft="95.66dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/fill_5" />
+    <!--android:layout_marginLeft="154.68dp"-->
+    <!--android:layout_marginTop="76.25dp"-->
+
+    <ImageView
+        android:layout_width="12.86dp"
+        android:layout_height="30.48dp"
+        android:layout_marginLeft="116.35dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/fill_7" />
+    <!--android:layout_marginLeft="175.37dp"-->
+    <!--android:layout_marginTop="76.25dp"-->
+
+    <ImageView
+        android:layout_width="31.55dp"
+        android:layout_height="37.88dp"
+        android:layout_marginLeft="144.22dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/fill_9" />
+    <!--android:layout_marginLeft="203.24dp"-->
+    <!--android:layout_marginTop="75.75dp"-->
+
+</RelativeLayout>

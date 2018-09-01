@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "70488612250",
+    "firebase_url": "https://seva-eb93a.firebaseio.com",
+    "project_id": "seva-eb93a",
+    "storage_bucket": "seva-eb93a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:70488612250:android:263a485a0b3a0bd9",
+        "android_client_info": {
+          "package_name": "edu.caltech.seva"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "70488612250-6fs2lohshmppdiop13761g3poq2m9gol.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.caltech.seva",
+            "certificate_hash": "47dcd603c23b527aa723fa7e528528b54bb7a611"
+          }
+        },
+        {
+          "client_id": "70488612250-nus46ojve3ispn9nuk4ic1ipgn4b1m5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE_x5kJYfpqbmqE3iHhqfngWoCFhDKGRw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "70488612250-nus46ojve3ispn9nuk4ic1ipgn4b1m5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

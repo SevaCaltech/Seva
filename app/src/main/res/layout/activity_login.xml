@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="115dp"
+        android:background="@color/colorPrimary"
+        android:elevation="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="32.41dp"
+            android:layout_height="36.7dp"
+            android:src="@drawable/fill_1" />
+
+        <ImageView
+            android:layout_width="32.24dp"
+            android:layout_height="36.64dp"
+            android:layout_marginLeft="15.02dp"
+            android:src="@drawable/fill_3" />
+
+        <ImageView
+            android:layout_width="20.16dp"
+            android:layout_height="36.88dp"
+            android:layout_marginLeft="15.01dp"
+            android:src="@drawable/fill_5" />
+
+        <ImageView
+            android:layout_width="12.86dp"
+            android:layout_height="30.48dp"
+            android:layout_marginLeft=".53dp"
+            android:layout_marginBottom="3.7dp"
+            android:src="@drawable/fill_7" />
+
+        <ImageView
+            android:layout_width="31.55dp"
+            android:layout_height="37.88dp"
+            android:layout_marginLeft="15.01dp"
+            android:src="@drawable/fill_9" />
+        
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:background="@color/colorPrimaryTransparent">
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="239dp"
+            android:layout_height="32.5dp"
+            android:layout_marginTop="44.5dp"
+            android:background="@color/icons"
+            android:hint="email"
+            android:inputType="textEmailAddress"
+            android:paddingLeft="10.5dp"
+            android:textSize="14sp"
+            android:textColorHint="@color/secondary_text"/>
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="239dp"
+            android:layout_height="32.5dp"
+            android:layout_marginTop="23.5dp"
+            android:background="@color/icons"
+            android:hint="password"
+            android:paddingLeft="10.5dp"
+            android:textSize="14sp"
+            android:inputType="textPassword"
+            android:textColorHint="@color/secondary_text"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="23.5dp">
+
+            <Button
+                android:id="@+id/loginHelpButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Help"
+                android:background="@color/accent"
+                android:textColor="@color/icons"
+                android:elevation="10dp"
+                android:minHeight="0dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="9dp"
+                android:paddingRight="15dp"
+                android:paddingLeft="15dp"/>
+
+            <Button
+                android:id="@+id/loginButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:text="login"
+                android:background="@color/accent"
+                android:textColor="@color/icons"
+                android:elevation="10dp"
+                android:minHeight="0dp"
+                android:paddingTop="11dp"
+                android:paddingBottom="9dp"
+                android:paddingRight="15dp"
+                android:paddingLeft="15dp"/>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="23.5dp"
+            android:visibility="gone"
+            android:indeterminateTint="@color/colorPrimary"
+            android:indeterminateTintMode="src_in"/>
+
+    </LinearLayout>
+</LinearLayout>

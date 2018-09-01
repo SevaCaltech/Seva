@@ -1,0 +1,28 @@
+{
+  "UserAgent": "MobileHub/1.0",
+  "Version": "1.0",
+  "CredentialsProvider": {
+    "CognitoIdentity": {
+      "Default": {
+        "PoolId": "us-east-1:c56fb4a5-f2c8-4bf6-bc11-bc91b0461b28",
+        "Region": "us-east-1"
+      }
+    }
+  },
+  "IdentityManager": {
+    "Default": {}
+  },
+  "CognitoUserPool": {
+    "Default": {
+      "PoolId": "us-east-1_ljOoCEH26",
+      "AppClientId": "10q91tl5h3tv1l8pr7a4ngvtoj",
+      "AppClientSecret": "33p6njp8eme4igkej1bb3o5afj8cpic3agn6q5jnh6jk64nnhi6",
+      "Region": "us-east-1"
+    }
+  },
+  "DynamoDBObjectMapper": {
+    "Default": {
+      "Region": "us-east-1"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="seva.caltech.android.activities.Repair.RepairActivity">
+    <item
+        android:id="@+id/back"
+        android:title="Back"
+        android:orderInCategory="200"
+        app:showAsAction="always"
+        android:icon="@drawable/back_arrow">
+    </item>
+</menu>
