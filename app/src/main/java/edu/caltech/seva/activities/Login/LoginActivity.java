@@ -165,6 +165,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()) {
             case R.id.loginButton:
                 userLogin();
+//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                startActivity(intent);
+//                finish();
                 break;
             case R.id.loginHelpButton:
                 Toast.makeText(this, "Help Clicked...", Toast.LENGTH_SHORT).show();

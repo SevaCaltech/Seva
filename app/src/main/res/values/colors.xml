@@ -6,9 +6,13 @@
     <color name="colorPrimaryDark">#263fcb</color>
     <color name="primary_light">#bbdefb</color>
     <color name="colorPrimaryTransparent">#4d304ffe</color>
+    <color name="text_dark">#DE000000</color>
+    <color name="text_light">#8A000000</color>
     <color name="accent">#1DE9B6</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
+    <color name="dot_active">#FF9E9E9E</color>
+    <color name="dot_inactive">#FFD8D8D8</color>
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
 </resources>

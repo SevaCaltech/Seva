@@ -49,10 +49,10 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 //TODO: connect help button to email/phone?
 //the Home fragment that is the default starting page of the app which displays the user info
 public class Home extends Fragment {
-    TextView displayName,id, numNotifications, numToilets;
+    TextView displayName, id, numNotifications, numToilets;
     Button helpButton;
     private BroadcastReceiver broadcastReceiver;
-    static String name,uid;
+    static String name, uid;
     ArrayList<String> toilets = new ArrayList<>();
     UsersDO user = new UsersDO();
     ArrayList<ToiletsDO> dynamoToilets = new ArrayList<>();
@@ -66,15 +66,17 @@ public class Home extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView =  inflater.inflate(R.layout.activity_home,null);
+        View rootView = inflater.inflate(R.layout.activity_home, null);
         helpButton = (Button) rootView.findViewById(R.id.helpButton);
         displayName = (TextView) rootView.findViewById(R.id.opName);
         id = (TextView) rootView.findViewById(R.id.opID);
         numNotifications = (TextView) rootView.findViewById(R.id.numNotifications);
         numToilets = (TextView) rootView.findViewById(R.id.numToilets);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        if(!preferences.getBoolean("firstTime",false)){
+
+        if (name == null) {
+            Log.d("log", "Initializing AWS...");
+
             // Initialize the Amazon Cognito credentials provider
             final CognitoCachingCredentialsProvider creds = new CognitoCachingCredentialsProvider(
                     getContext(),
@@ -94,15 +96,20 @@ public class Home extends Fragment {
                     .build();
             loadUser(creds);
         }
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("firstTime",true);
-        editor.commit();
+        else {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            toilets.addAll((prefs.getStringSet("toilets",null)));
+            final String numString = Integer.toString(toilets.size());
+            displayName.setText(name);
+            numToilets.setText(numString);
+            id.setText(uid);
+        }
 
         getActivity().setTitle("Home");
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(),"Help Clicked..",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Help Clicked..", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -120,26 +127,26 @@ public class Home extends Fragment {
     }
 
     public void loadUser(final CognitoCachingCredentialsProvider creds) {
-       Thread t = new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                user = dynamoDBMapper.load(UsersDO.class,userId);
+                user = dynamoDBMapper.load(UsersDO.class, userId);
                 uid = creds.getIdentityId();
                 name = user.getDisplayName();
                 toilets.addAll(user.getToilets());
                 final int num = toilets.size();
                 final String numString = Integer.toString(num);
 
-                Log.d("log","loading user...");
-                Log.d("log","displayName: " + name);
-                Log.d("log","toilets: " + toilets);
-                Log.d("log","uid: " + uid);
+                Log.d("log", "loading user...");
+                Log.d("log", "\tdisplayName: " + name);
+                Log.d("log", "\ttoilets: " + toilets);
+                Log.d("log", "\tuid: " + uid);
 
                 Set<String> toiletSet = new HashSet<String>();
                 toiletSet.addAll(toilets);
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putStringSet("toilets",toiletSet);
+                editor.putStringSet("toilets", toiletSet);
                 editor.commit();
 
                 runOnUiThread(new Runnable() {
@@ -151,22 +158,22 @@ public class Home extends Fragment {
                     }
                 });
 
-                for(String toilet:toilets) {
-                    DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
-                            .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
-                            .withConsistentRead(false);
-                    PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
-                    for(ToiletsDO row:list){
-                        Log.d("log", row.getDeviceId().substring(11));
-                        DbHelper dbHelper = new DbHelper(getContext());
-                        SQLiteDatabase database =dbHelper.getWritableDatabase();
-                        dbHelper.saveErrorCode(row.getData().get("error"),row.getDeviceId().substring(11),row.getTimestamp(),database);
-                        dbHelper.close();
-                    }
-                }
+//                for(String toilet:toilets) {
+//                    DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
+//                            .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
+//                            .withConsistentRead(false);
+//                    PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
+//                    for(ToiletsDO row:list){
+//                        Log.d("log", row.getDeviceId().substring(11));
+//                        DbHelper dbHelper = new DbHelper(getContext());
+//                        SQLiteDatabase database =dbHelper.getWritableDatabase();
+//                        dbHelper.saveErrorCode(row.getData().get("error"),row.getDeviceId().substring(11),row.getTimestamp(),database);
+//                        dbHelper.close();
+//                    }
+//                }
             }
         });
-       t.start();
+        t.start();
         try {
             t.join();
         } catch (InterruptedException e) {
