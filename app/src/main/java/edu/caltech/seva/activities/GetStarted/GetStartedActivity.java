@@ -18,7 +18,6 @@ import edu.caltech.seva.activities.Login.LoginActivity;
 import edu.caltech.seva.helpers.PrefManager;
 
 public class GetStartedActivity extends AppCompatActivity {
-    private PrefManager prefManager;
     private ViewPager mPager;
     private MyViewPagerAdapter mAdapter;
     private Toolbar mToolbar;
@@ -26,14 +25,8 @@ public class GetStartedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        prefManager = new PrefManager(this);
-        if(!prefManager.isFirstTimeLaunch()) {
-            launchLoginScreen();
-            finish();
-        }
-
         setContentView(R.layout.activity_get_started);
+
         mToolbar = (Toolbar) findViewById(R.id.app_bar);
         mToolbar.setTitle("How Seva works");
         mToolbar.setVisibility(View.GONE);
@@ -47,16 +40,10 @@ public class GetStartedActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPageSelected(int position) {
-
-            }
-
+            public void onPageSelected(int position) {}
             @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
+            public void onPageScrollStateChanged(int state) {}
         });
-
     }
 
     public void showToolbar(int currentPage) {
@@ -71,8 +58,7 @@ public class GetStartedActivity extends AppCompatActivity {
     }
 
     public void launchLoginScreen() {
-        prefManager.setFirstTimeLaunch(false);
-        startActivity(new Intent(GetStartedActivity.this, LoginActivity.class));
+        startActivity(new Intent(GetStartedActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
     }
 

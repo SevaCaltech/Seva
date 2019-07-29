@@ -24,12 +24,17 @@
             android:value="AIzaSyDuIJhzf_p-_HrUdf53DQEefO4CmzXAwqg" />
 
         <activity
-            android:name=".activities.GetStarted.GetStartedActivity"
+            android:name=".activities.Splashscreen.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activities.GetStarted.GetStartedActivity"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity

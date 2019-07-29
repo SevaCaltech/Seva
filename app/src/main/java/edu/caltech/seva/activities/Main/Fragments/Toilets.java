@@ -36,6 +36,7 @@ import java.util.List;
 import edu.caltech.seva.R;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.Toilet;
 import edu.caltech.seva.models.UserData;
 import edu.caltech.seva.models.UsersDO;
@@ -45,7 +46,7 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 //TODO: maybe the pin should be red if there's a problem and add a button to get to repair guide, connect to sqlite db and server
 public class Toilets extends Fragment {
 
-
+    private PrefManager prefManager;
     ArrayList<String> toilets = new ArrayList<>();
     ArrayList<Toilet> toiletObj = new ArrayList<>();
 
@@ -59,8 +60,8 @@ public class Toilets extends Fragment {
         View rootView = inflater.inflate(R.layout.activity_toilets,null);
         getActivity().setTitle("My Toilets");
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        toilets.addAll((prefs.getStringSet("toilets",null)));
+        prefManager = new PrefManager(getContext());
+        toilets.addAll(prefManager.getToilets());
         Log.d("log", "toilets read: "+ toilets);
 
         DbHelper dbHelper = new DbHelper(getContext());
