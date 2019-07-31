@@ -39,9 +39,11 @@ public class GetStartedHomeFragment extends Fragment implements View.OnClickList
         switch (view.getId()) {
             case R.id.login_button:
                 ((GetStartedActivity)getActivity()).launchLoginScreen();
+                break;
 
             case R.id.get_started_button:
                 ((GetStartedActivity)getActivity()).setItem(1);
+                break;
 
         }
     }

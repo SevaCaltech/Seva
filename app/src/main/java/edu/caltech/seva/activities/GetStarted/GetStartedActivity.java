@@ -58,8 +58,8 @@ public class GetStartedActivity extends AppCompatActivity {
     }
 
     public void launchLoginScreen() {
-        startActivity(new Intent(GetStartedActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        finish();
+        startActivity(new Intent(GetStartedActivity.this, LoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+        overridePendingTransition(0,0);
     }
 
     public class MyViewPagerAdapter extends FragmentStatePagerAdapter {

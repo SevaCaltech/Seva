@@ -79,7 +79,9 @@ public class Home extends Fragment {
 
         prefManager = new PrefManager(getContext());
         uid = prefManager.getUid();
-        if(name == null) {
+        name = prefManager.getUsername();
+        if( prefManager.isFirstTimeLaunch()) {
+            prefManager.setFirstTimeLaunch(false);
             Log.d("log", "Initializing AWS...");
 
             // Initialize the Amazon Cognito credentials provider
@@ -106,11 +108,17 @@ public class Home extends Fragment {
             loadUser(creds);
         }
         else {
-            toilets.addAll(prefManager.getToilets());
+            if (prefManager.getToilets() != null)
+                toilets.addAll(prefManager.getToilets());
             final String numString = Integer.toString(toilets.size());
             displayName.setText(name);
             numToilets.setText(numString);
             id.setText(uid);
+
+            Log.d("log", "SavedPrefs: ");
+            Log.d("log", "\tdisplayName: " + name);
+            Log.d("log", "\ttoilets: " + toilets);
+            Log.d("log", "\tuid: " + uid);
         }
 
         getActivity().setTitle("Home");
@@ -140,6 +148,7 @@ public class Home extends Fragment {
             public void run() {
                 user = dynamoDBMapper.load(UsersDO.class, uid);
                 name = user.getDisplayName();
+                toilets.clear();
                 toilets.addAll(user.getToilets());
                 final int num = toilets.size();
                 final String numString = Integer.toString(num);
@@ -162,6 +171,7 @@ public class Home extends Fragment {
                     }
                 });
 
+                //get all errors for assigned toilets and store in local db
 //                for(String toilet:toilets) {
 //                    DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
 //                            .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
@@ -189,12 +199,6 @@ public class Home extends Fragment {
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(DbContract.UPDATE_UI_FILTER));
-        String who = prefManager.getUsername();
-        String saved_email = prefManager.getEmail();
-        String saved_uid = prefManager.getUid();
-        Log.d("log", "saved username: " + who);
-        Log.d("log", "saved email: " + saved_email);
-        Log.d("log", "saved uid: " + saved_uid);
     }
 
     //unregisters broadcastreceiver

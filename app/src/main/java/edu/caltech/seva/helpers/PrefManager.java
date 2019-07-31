@@ -13,7 +13,7 @@ public class PrefManager {
 
     int PRIVATE_MODE = 0;    //shared pref mode
     private static final String PREF_NAME = "seva-preferences";
-//    private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
+    private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
     private static final String TOILETS = "toilets";
@@ -23,11 +23,16 @@ public class PrefManager {
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
     }
-//
-//    public void setFirstTimeLaunch(boolean isFirstTime) {
-//        editor.putBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
-//        editor.commit();
-//    }
+
+    public void clearPrefs(){
+        editor.clear();
+        editor.commit();
+    }
+
+    public void setFirstTimeLaunch(boolean isFirstTime) {
+        editor.putBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
+        editor.commit();
+    }
 
     public void setToilets(Set<String> toilets) {
         editor.putStringSet(TOILETS, toilets);
@@ -49,12 +54,9 @@ public class PrefManager {
         editor.commit();
     }
 
-//    public boolean isFirstTimeLaunch() {
-//        return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
-//    }
+    public boolean isFirstTimeLaunch() { return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);}
     public Set<String> getToilets() { return pref.getStringSet(TOILETS,null);}
     public String getUsername() { return pref.getString(USERNAME, "");}
-    public String getEmail() {return pref.getString(EMAIL, "");}
+    public String getEmail() { return pref.getString(EMAIL, "");}
     public String getUid() { return pref.getString(UID, "");}
-
 }

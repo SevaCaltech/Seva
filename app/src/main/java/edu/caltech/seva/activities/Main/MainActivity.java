@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity
 
     FragmentTransaction fragmentTransaction;
     Toolbar toolbar;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +59,30 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         //display home fragment first
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.screen_area, new Home());
         fragmentTransaction.commit();
+        navigationView.setCheckedItem(R.id.nav_home);
+
+        //handle backstack nav highlighting
+        this.getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Fragment current = getCurrentFragment();
+                if (current instanceof Home)
+                    navigationView.setCheckedItem(R.id.nav_home);
+                else if (current instanceof Toilets)
+                    navigationView.setCheckedItem(R.id.nav_toilets);
+                else if (current instanceof Notifications)
+                    navigationView.setCheckedItem(R.id.nav_notifications);
+                else
+                    navigationView.setCheckedItem(R.id.nav_settings);
+            }
+        });
     }
 
     //if the back button is pressed and the drawer is open it will close
@@ -84,17 +102,22 @@ public class MainActivity extends AppCompatActivity
 
         // Handle navigation view item clicks here.
         Fragment fragment = null;
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                fragment = new Home();
+                break;
 
-        int id = item.getItemId();
+            case R.id.nav_toilets:
+                fragment = new Toilets();
+                break;
 
-        if (id == R.id.nav_home) {
-            fragment = new Home();
-        } else if (id == R.id.nav_toilets) {
-            fragment = new Toilets();
-        } else if (id == R.id.nav_notifications) {
-            fragment = new Notifications();
-        } else if (id == R.id.nav_settings) {
-            fragment = new Settings();
+            case R.id.nav_notifications:
+                fragment = new Notifications();
+                break;
+
+            case R.id.nav_settings:
+                fragment = new Settings();
+                break;
         }
 
         if (fragment != null) {
@@ -110,6 +133,9 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    public Fragment getCurrentFragment() {
+        return this.getSupportFragmentManager().findFragmentById(R.id.screen_area);
+    }
     @Override
     protected void onResume() {
         super.onResume();

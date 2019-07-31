@@ -78,8 +78,8 @@ public class AWSLoginModel {
                 NewPasswordContinuation newPasswordContinuation = (NewPasswordContinuation) continuation;
                 newPasswordContinuation.setPassword(userPassword);
                 newPasswordContinuation.continueTask();
-                userPassword = "";
             }
+            userPassword = "";
             continuation.continueTask();
         }
 

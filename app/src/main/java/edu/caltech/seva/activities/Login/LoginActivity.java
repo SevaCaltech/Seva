@@ -28,6 +28,8 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Mult
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.NewPasswordContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cognitoidentityprovider.model.NotAuthorizedException;
+import com.amazonaws.services.cognitoidentityprovider.model.UserNotFoundException;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.MainActivity;
@@ -38,14 +40,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     AWSLoginModel awsLoginModel;
     private Button login, help;
-    private EditText editEmail, editPassword;
+    private EditText editUsername, editPassword;
     private ProgressBar progressBar;
-
-//    private static final String userPoolId = " us-east-1_ljOoCEH26"; //connects to SevaOperators userpool
-//    private static final String clientId = "10q91tl5h3tv1l8pr7a4ngvtoj"; //connects userpool to the Seva app
-//    private static final String identityPoolId = "us-east-1:c56fb4a5-f2c8-4bf6-bc11-bc91b0461b28"; //not currently used
-//    private static final String clientSecret = "33p6njp8eme4igkej1bb3o5afj8cpic3agn6q5jnh6jk64nnhi6";
-//    private static final Regions cognitoRegion = Regions.US_EAST_1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         login = (Button) findViewById(R.id.loginButton);
         help = (Button) findViewById(R.id.loginHelpButton);
-        editEmail = (EditText) findViewById(R.id.email);
+        editUsername = (EditText) findViewById(R.id.username);
         editPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         login.setOnClickListener(this);
@@ -73,7 +69,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onFailure(Exception exception) {
         exception.printStackTrace();
-        Toast.makeText(LoginActivity.this, "Sign In: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+        progressBar.setVisibility(View.INVISIBLE);
+
+        if (exception instanceof UserNotFoundException)
+            Toast.makeText(LoginActivity.this, "User does not exist.", Toast.LENGTH_LONG).show();
+        else if (exception instanceof NotAuthorizedException)
+            Toast.makeText(LoginActivity.this, "Incorrect username or password", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(LoginActivity.this, "Unknown error. Check internet connection.", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -88,12 +91,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
     private void userLogin() {
-        final String email = editEmail.getText().toString().trim();
+        final String username = editUsername.getText().toString().trim();
         final String password = editPassword.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            editEmail.setError("Email is required");
-            editEmail.requestFocus();
+        if (username.isEmpty()) {
+            editUsername.setError("Username is required");
+            editUsername.requestFocus();
             return;
         }
 
@@ -110,6 +113,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        awsLoginModel.signInUser(email, password);
+        awsLoginModel.signInUser(username, password);
     }
 }
