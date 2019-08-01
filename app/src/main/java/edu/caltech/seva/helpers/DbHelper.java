@@ -41,21 +41,27 @@ public class DbHelper extends SQLiteAssetHelper{
         database.delete(DbContract.NOTIFY_TABLE,selection,null);
     }
 
-    public Cursor readErrorInfo(SQLiteDatabase database, String errorCode){
+    public Cursor readRepairCode(SQLiteDatabase database, String errorCode){
         String[] projection = {"*"};
         String selection = DbContract.ERROR_CODE+" = '"+errorCode+"'";
+        return (database.query(DbContract.REPAIR_LOOKUP_TABLE,projection,selection,null,null,null,null));
+    }
+
+    public Cursor readRepairInfo(SQLiteDatabase database, String repairCode){
+        String[] projection = {"*"};
+        String selection = DbContract.REPAIR_CODE+" = '"+repairCode+"'";
         return (database.query(DbContract.INFO_TABLE,projection,selection,null,null,null,null));
     }
 
     public Cursor readToiletInfo(SQLiteDatabase database, String toiletId){
         String[] projection = {"*"};
         String selection = DbContract.TOILET_ID+" = '"+toiletId+"'";
-        return (database.query(DbContract.TOILET_INFO,projection,selection,null,null,null,null));
+        return (database.query(DbContract.TOILET_INFO_TABLE,projection,selection,null,null,null,null));
     }
 
-    public Cursor readStep(SQLiteDatabase database, String errorCode){
+    public Cursor readStep(SQLiteDatabase database, String repairCode){
         String[] projection = {DbContract.STEP_NUM,DbContract.STEP_PIC,DbContract.STEP_TEXT,DbContract.STEP_INFO,DbContract.STEP_SYMBOL};
-        return (database.query("'"+DbContract.REPAIR_TABLE+errorCode+"'",projection,null,null,null,null,null));
+        return (database.query("'"+DbContract.REPAIR_TABLE+repairCode+"'",projection,null,null,null,null,null));
     }
 
     public static Cursor readStepCount(SQLiteDatabase database, String errorCode){

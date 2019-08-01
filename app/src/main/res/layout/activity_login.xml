@@ -85,10 +85,10 @@
             android:layout_marginTop="23.5dp">
 
             <Button
-                android:id="@+id/loginHelpButton"
+                android:id="@+id/loginGuestButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Help"
+                android:text="GUEST"
                 android:background="@color/accent"
                 android:textColor="@color/icons"
                 android:elevation="10dp"

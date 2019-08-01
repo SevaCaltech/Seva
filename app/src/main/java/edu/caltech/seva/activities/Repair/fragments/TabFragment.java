@@ -24,9 +24,9 @@ import edu.caltech.seva.models.RepairStep;
 
 //handles the tab fragments
 public class TabFragment extends Fragment {
-    private static final String ERROR_CODE = "ERROR_CODE";
+    private static final String REPAIR_CODE = "REPAIR_CODE";
     private static final String POSITION = "POSITION";
-    private ArrayList<RepairStep> arrayList = new ArrayList<>();
+    private ArrayList<RepairStep> repairSteps = new ArrayList<>();
     private TextToSpeech mTTs;
     private int result;
 
@@ -36,10 +36,10 @@ public class TabFragment extends Fragment {
     }
 
     //changes the step number on each tab
-    public static TabFragment newInstance(String errorCode, int position) {
+    public static TabFragment newInstance(String repairCode, int position) {
         TabFragment tabFragment = new TabFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ERROR_CODE,errorCode);
+        bundle.putString(REPAIR_CODE,repairCode);
         bundle.putInt(POSITION,position);
         tabFragment.setArguments(bundle);
         return tabFragment;
@@ -52,9 +52,9 @@ public class TabFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.repair_step,container,false);
 
         Bundle arguments = getArguments();
-        String errorCode = arguments.getString(ERROR_CODE);
+        String repairCode = arguments.getString(REPAIR_CODE);
         int position = arguments.getInt(POSITION)-1;
-        readStepFromDb(errorCode);
+        readStepFromDb(repairCode);
 
         TextView display_stepNum = (TextView) rootView.findViewById(R.id .stepNum);
         ImageView display_stepPic = (ImageView) rootView.findViewById(R.id.stepPic);
@@ -63,14 +63,14 @@ public class TabFragment extends Fragment {
         ImageView display_stepSymbol = (ImageView) rootView.findViewById(R.id.stepSymbol);
         ImageView speech = (ImageView) rootView.findViewById(R.id.speechButton);
 
-        int picID = getResources().getIdentifier(arrayList.get(position).getStepPic(),"drawable",getActivity().getPackageName());
-        int symbolID = getResources().getIdentifier(arrayList.get(position).getStepSymbol(),"drawable",getActivity().getPackageName());
-        final String directions = arrayList.get(position).getStepText();
+        int picID = getResources().getIdentifier(repairSteps.get(position).getStepPic(),"drawable",getActivity().getPackageName());
+        int symbolID = getResources().getIdentifier(repairSteps.get(position).getStepSymbol(),"drawable",getActivity().getPackageName());
+        final String directions = repairSteps.get(position).getStepText();
 
-        display_stepNum.setText("Step " + Integer.toString(arrayList.get(position).getStepNum()) + " of "+arrayList.size());
+        display_stepNum.setText("Step " + Integer.toString(repairSteps.get(position).getStepNum()) + " of "+repairSteps.size());
         display_stepPic.setImageResource(picID);
         display_stepText.setText(directions);
-        display_stepInfo.setText("Tools : " + arrayList.get(position).getStepInfo());
+        display_stepInfo.setText("Tools : " + repairSteps.get(position).getStepInfo());
         display_stepSymbol.setImageResource(symbolID);
 
         speech.setOnClickListener(new View.OnClickListener() {
@@ -97,10 +97,10 @@ public class TabFragment extends Fragment {
     }
 
     //accesses the db and reads each row from the proper table, sets it into an arrayList with RepairStep objects
-    public void readStepFromDb(String errorCode){
+    public void readStepFromDb(String repairCode){
         DbHelper dbHelper = new DbHelper(getContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = dbHelper.readStep(database, errorCode);
+        Cursor cursor = dbHelper.readStep(database, repairCode);
         String stepPic, stepText, stepInfo, stepSymbol;
         int stepNum;
         if(cursor.getCount()>0){
@@ -110,7 +110,7 @@ public class TabFragment extends Fragment {
                 stepPic = cursor.getString(cursor.getColumnIndex(DbContract.STEP_PIC));
                 stepText = cursor.getString(cursor.getColumnIndex(DbContract.STEP_TEXT));
                 stepSymbol = cursor.getString(cursor.getColumnIndex(DbContract.STEP_SYMBOL));
-                arrayList.add(new RepairStep(stepNum,stepPic,stepText,stepInfo,stepSymbol));
+                repairSteps.add(new RepairStep(stepNum,stepPic,stepText,stepInfo,stepSymbol));
             }
             cursor.close();
             dbHelper.close();

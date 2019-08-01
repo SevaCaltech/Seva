@@ -18,13 +18,13 @@ import edu.caltech.seva.helpers.DbHelper;
 //handles the title fragment
 public class TitleFragment extends Fragment {
 
-    private static final String ERROR_CODE = "ERROR_CODE";
+    private static final String REPAIR_CODE = "REPAIR_CODE";
     private static final String TITLE = "TITLE";
     private static final String TOOL = "TOOL";
     private static final String TIME = "TIME";
     private static final String STEPS = "STEPS";
 
-    private String errorCode, repairTitle, totalTime, toolInfo;
+    private String repairCode, repairTitle, totalTime, toolInfo;
     private int totalSteps;
 
     //should be empty
@@ -33,10 +33,10 @@ public class TitleFragment extends Fragment {
     }
 
     //sends the errorcode to the created fragment
-    public static TitleFragment newInstance(String errorCode, String repairTitle, String toolInfo, String totalTime, int totalSteps) {
+    public static TitleFragment newInstance(String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps) {
         TitleFragment titleFragment = new TitleFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ERROR_CODE,errorCode);
+        bundle.putString(REPAIR_CODE,repairCode);
         bundle.putString(TITLE,repairTitle);
         bundle.putString(TOOL,toolInfo);
         bundle.putString(TIME,totalTime);
@@ -52,7 +52,7 @@ public class TitleFragment extends Fragment {
 
         //receives the errorcode and reads the db
         Bundle bundle = getArguments();
-        errorCode = bundle.getString(ERROR_CODE);
+        repairCode = bundle.getString(REPAIR_CODE);
         repairTitle = bundle.getString(TITLE);
         totalTime = bundle.getString(TIME);
         toolInfo = bundle.getString(TOOL);
@@ -68,7 +68,7 @@ public class TitleFragment extends Fragment {
         display_toolInfo.setText(toolInfo);
         display_totalSteps.setText(Integer.toString(totalSteps));
         display_totalTime.setText(totalTime);
-        display_errorCode.setText("Error Code: "+errorCode);
+        display_errorCode.setText("Repair Code: "+repairCode);
         return rootView;
     }
 }

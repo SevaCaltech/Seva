@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -61,6 +62,12 @@ public class Toilets extends Fragment {
         getActivity().setTitle("My Toilets");
 
         prefManager = new PrefManager(getContext());
+        if (prefManager.getToilets() == null)
+        {
+            Toast.makeText(getContext(),"No toilets assigned..", Toast.LENGTH_LONG).show();
+            return rootView;
+        }
+
         toilets.addAll(prefManager.getToilets());
         Log.d("log", "toilets read: "+ toilets);
 
@@ -124,24 +131,28 @@ public class Toilets extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        if (prefManager.getToilets() != null)
+            mMapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onPause();
+        if (prefManager.getToilets() != null)
+            mMapView.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onDestroy();
+        if (prefManager.getToilets() != null)
+            mMapView.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        if (prefManager.getToilets() != null)
+            mMapView.onLowMemory();
     }
 }

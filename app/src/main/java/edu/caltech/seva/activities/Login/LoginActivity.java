@@ -39,7 +39,7 @@ import edu.caltech.seva.helpers.AWSLoginModel;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, AWSLoginHandler {
 
     AWSLoginModel awsLoginModel;
-    private Button login, help;
+    private Button login, guest;
     private EditText editUsername, editPassword;
     private ProgressBar progressBar;
 
@@ -52,17 +52,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         awsLoginModel = new AWSLoginModel(this, this);
 
         login = (Button) findViewById(R.id.loginButton);
-        help = (Button) findViewById(R.id.loginHelpButton);
+        guest = (Button) findViewById(R.id.loginGuestButton);
         editUsername = (EditText) findViewById(R.id.username);
         editPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         login.setOnClickListener(this);
-        help.setOnClickListener(this);
+        guest.setOnClickListener(this);
     }
 
     @Override
     public void onSignInSuccess() {
-        LoginActivity.this.startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        LoginActivity.this.startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
     }
 
@@ -85,8 +85,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.loginButton:
                 userLogin();
                 break;
-            case R.id.loginHelpButton:
-                Toast.makeText(this, "Help Clicked...", Toast.LENGTH_SHORT).show();
+            case R.id.loginGuestButton:
+                awsLoginModel.signInGuest();
                 break;
         }
     }

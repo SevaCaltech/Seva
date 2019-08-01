@@ -64,6 +64,7 @@ public class Settings extends Fragment implements View.OnClickListener {
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                dbHelper.close();
                 getActivity().finish();
                 break;
         }

@@ -112,4 +112,12 @@ public class AWSLoginModel {
         mCognitoUser = mCognitoUserPool.getUser(userName);
         mCognitoUser.getSessionInBackground(authenticationHandler);
     }
+
+    public void signInGuest() {
+        this.userName = "Guest";
+        this.userPassword = "";
+        prefManager.setUsername(userName);
+        prefManager.setIsGuest(true);
+        mCallback.onSignInSuccess();
+    }
 }

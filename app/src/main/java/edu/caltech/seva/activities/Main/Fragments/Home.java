@@ -1,5 +1,6 @@
 package edu.caltech.seva.activities.Main.Fragments;
 
+import android.app.PendingIntent;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +14,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +69,9 @@ public class Home extends Fragment {
     UsersDO user = new UsersDO();
 //    ArrayList<ToiletsDO> dynamoToilets = new ArrayList<>();
     DynamoDBMapper dynamoDBMapper;
+    private final String CHANNEL_ID = "seva_notification";
+    private final int NOTIFICATION_ID = 1;
+
 
     @Nullable
     @Override
@@ -80,7 +86,8 @@ public class Home extends Fragment {
         prefManager = new PrefManager(getContext());
         uid = prefManager.getUid();
         name = prefManager.getUsername();
-        if( prefManager.isFirstTimeLaunch()) {
+
+        if( prefManager.isFirstTimeLaunch() && !prefManager.isGuest()) {
             prefManager.setFirstTimeLaunch(false);
             Log.d("log", "Initializing AWS...");
 
@@ -119,6 +126,7 @@ public class Home extends Fragment {
             Log.d("log", "\tdisplayName: " + name);
             Log.d("log", "\ttoilets: " + toilets);
             Log.d("log", "\tuid: " + uid);
+            Log.d("log","\tisGuest: " + prefManager.isGuest());
         }
 
         getActivity().setTitle("Home");
@@ -136,6 +144,7 @@ public class Home extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 loadNotifications();
+                displayNotification();
             }
         };
 
@@ -157,6 +166,7 @@ public class Home extends Fragment {
                 Log.d("log", "\tdisplayName: " + name);
                 Log.d("log", "\ttoilets: " + toilets);
                 Log.d("log", "\tuid: " + uid);
+                Log.d("log","\tisGuest: " + prefManager.isGuest());
 
                 Set<String> toiletSet = new HashSet<String>();
                 toiletSet.addAll(toilets);
@@ -172,19 +182,19 @@ public class Home extends Fragment {
                 });
 
                 //get all errors for assigned toilets and store in local db
-//                for(String toilet:toilets) {
-//                    DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
-//                            .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
-//                            .withConsistentRead(false);
-//                    PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
-//                    for(ToiletsDO row:list){
-//                        Log.d("log", row.getDeviceId().substring(11));
-//                        DbHelper dbHelper = new DbHelper(getContext());
-//                        SQLiteDatabase database =dbHelper.getWritableDatabase();
-//                        dbHelper.saveErrorCode(row.getData().get("error"),row.getDeviceId().substring(11),row.getTimestamp(),database);
-//                        dbHelper.close();
-//                    }
-//                }
+                for(String toilet:toilets) {
+                    DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
+                            .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
+                            .withConsistentRead(false);
+                    PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
+                    for(ToiletsDO row:list){
+                        Log.d("log", row.getDeviceId().substring(11));
+                        DbHelper dbHelper = new DbHelper(getContext());
+                        SQLiteDatabase database =dbHelper.getWritableDatabase();
+                        dbHelper.saveErrorCode(row.getData().get("error"),row.getDeviceId().substring(11),row.getTimestamp(),database);
+                        dbHelper.close();
+                    }
+                }
             }
         });
         t.start();
@@ -214,5 +224,22 @@ public class Home extends Fragment {
         int count = (int) DatabaseUtils.queryNumEntries(database, DbContract.NOTIFY_TABLE);
         numNotifications.setText(String.valueOf(count));
         database.close();
+    }
+
+    private void displayNotification() {
+        Context context = getContext();
+        Intent intent = new Intent(context, Notifications.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.icon_seva_small);
+        builder.setContentTitle("New Repair");
+        builder.setContentText("There is a new repair.");
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        builder.setContentIntent(pendingIntent);
+        builder.setAutoCancel(true);
+
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        notificationManagerCompat.notify(NOTIFICATION_ID, builder.build());
     }
 }
