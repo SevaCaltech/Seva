@@ -16,6 +16,7 @@ import java.util.Set;
 public class UsersDO {
     private String _uid;
     private String _displayName;
+    private String _phone;
     private List<String> _toilets;
 
     @DynamoDBHashKey(attributeName = "uid")
@@ -44,6 +45,15 @@ public class UsersDO {
 
     public void setToilets(final List<String> _toilets) {
         this._toilets = _toilets;
+    }
+
+    @DynamoDBAttribute(attributeName = "phone")
+    public String getPhone() {
+        return _phone;
+    }
+
+    public void setPhone(final String _phone) {
+        this._phone = _phone;
     }
 
 }
