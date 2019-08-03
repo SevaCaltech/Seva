@@ -4,13 +4,13 @@ public class DbContract {
 
     //Table for holding incoming error information
     public static final String NOTIFY_TABLE = "notificationInfo";
-    public static final String ERROR_CODE = "errorCode";
+    public static final String REPAIR_CODE = "repairCode";
     public static final String NOTIFY_DATE = "date";
     public static final String TOILET_ID = "toiletId";
     public static final String UPDATE_UI_FILTER = "josh.caltech.seva.seva_josh.UPDATE_UI";
 
     //Table for accessing toilet info, also uses TOILET_ID from above
-    public static final String TOILET_INFO = "toiletInfo";
+    public static final String TOILET_INFO_TABLE = "toiletInfo";
     public static final String TOILET_LAT = "latitude";
     public static final String TOILET_LNG = "longitude";
     public static final String TOILET_DESC = "description";
@@ -29,5 +29,9 @@ public class DbContract {
     public static final String STEP_TEXT = "stepText";
     public static final String STEP_INFO = "stepInfo";
     public static final String STEP_SYMBOL = "stepSymbol";
+
+    //Table for connecting errorCodes to repairCodes
+    public static final String REPAIR_LOOKUP_TABLE = "repairLookup";
+    public static final String ERROR_CODE = "errorCode";
 
 }

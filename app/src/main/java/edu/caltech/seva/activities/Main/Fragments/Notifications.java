@@ -38,7 +38,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerAdapter adapter;
-    private ArrayList<IncomingError> arrayList = new ArrayList<>();
+    private ArrayList<IncomingError> incomingErrors = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
     private int tempId,tempPos, result;
     private TextToSpeech mTTs;
@@ -55,7 +55,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         recyclerView.setLayoutManager(layoutManager);
 
         //sets up adapter, readErrorFromDb should get the notifications that have already been stored in the db
-        adapter = new RecyclerAdapter(getContext(),arrayList);
+        adapter = new RecyclerAdapter(getContext(),incomingErrors);
         adapter.setClickListener(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
@@ -74,7 +74,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
 
     //connects to the db and reads each row into an arraylist populated by IncomingError objects
     private void readErrorFromDb(){
-        arrayList.clear();
+        incomingErrors.clear();
         DbHelper dbHelper = new DbHelper(getContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         Cursor cursor = dbHelper.readErrorCode(database);
@@ -86,14 +86,26 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
                 errorCode = cursor.getString(cursor.getColumnIndex(DbContract.ERROR_CODE));
                 toiletId = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_ID));
                 date = cursor.getString(cursor.getColumnIndex(DbContract.NOTIFY_DATE));
-                arrayList.add(new IncomingError(id,errorCode,toiletId,date,null,null,null,0,null,null,null));
+                incomingErrors.add(new IncomingError(id,errorCode,toiletId,date,null,null,null,null,0,null,null,null));
             }
             cursor.close();
         }
 
+        //lookup and set repairCode
+        for (int i=0;i<incomingErrors.size();i++){
+            Cursor cursor3 = dbHelper.readRepairCode(database,incomingErrors.get(i).getErrorCode());
+            String repairCode;
+            if (cursor3.getCount()>0){
+                cursor3.moveToFirst();
+                repairCode = cursor3.getString(cursor3.getColumnIndex(DbContract.REPAIR_CODE));
+                incomingErrors.get(i).setRepairCode(repairCode);
+            }
+            cursor3.close();
+        }
+
         //gets info from repairInfo
-        for (int i=0;i<arrayList.size();i++){
-            Cursor cursor1 = dbHelper.readErrorInfo(database,arrayList.get(i).getErrorCode());
+        for (int i=0;i<incomingErrors.size();i++){
+            Cursor cursor1 = dbHelper.readRepairInfo(database,incomingErrors.get(i).getRepairCode());
             String repairTitle, toolInfo, totalTime;
             int totalSteps;
             if (cursor1.getCount()>0){
@@ -102,26 +114,26 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
                 toolInfo = cursor1.getString(cursor1.getColumnIndex(DbContract.TOOL_INFO));
                 totalTime = cursor1.getString(cursor1.getColumnIndex(DbContract.TOTAL_TIME));
                 totalSteps = cursor1.getInt(cursor1.getColumnIndex(DbContract.TOTAL_STEPS));
-                arrayList.get(i).setRepairTitle(repairTitle);
-                arrayList.get(i).setToolInfo(toolInfo);
-                arrayList.get(i).setTotalTime(totalTime);
-                arrayList.get(i).setTotalSteps(totalSteps);
+                incomingErrors.get(i).setRepairTitle(repairTitle);
+                incomingErrors.get(i).setToolInfo(toolInfo);
+                incomingErrors.get(i).setTotalTime(totalTime);
+                incomingErrors.get(i).setTotalSteps(totalSteps);
             }
             cursor1.close();
         }
 
         //gets info from toiletInfo
-        for (int i=0;i<arrayList.size();i++){
-            Cursor cursor2 = dbHelper.readToiletInfo(database,arrayList.get(i).getToiletId());
+        for (int i=0;i<incomingErrors.size();i++){
+            Cursor cursor2 = dbHelper.readToiletInfo(database,incomingErrors.get(i).getToiletId());
             String lat,lng,description;
             if(cursor2.getCount()>0){
                 cursor2.moveToFirst();
                 lat = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_LAT));
                 lng = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_LNG));
                 description = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_DESC));
-                arrayList.get(i).setLat(lat);
-                arrayList.get(i).setLng(lng);
-                arrayList.get(i).setDescription(description);
+                incomingErrors.get(i).setLat(lat);
+                incomingErrors.get(i).setLng(lng);
+                incomingErrors.get(i).setDescription(description);
             }
             cursor2.close();
         }
@@ -159,6 +171,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     public void acceptClicked(View view, IncomingError incomingError) {
         Intent intent = new Intent(getActivity(), RepairActivity.class);
         intent.putExtra("errorCode", incomingError.getErrorCode());
+        intent.putExtra("repairCode", incomingError.getRepairCode());
         intent.putExtra("repairTitle", incomingError.getRepairTitle());
         intent.putExtra("toolInfo", incomingError.getToolInfo());
         intent.putExtra("totalTime", incomingError.getTotalTime());
@@ -188,12 +201,10 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.deleteErrorCodeId(tempId, database);
         dbHelper.close();
-        arrayList.remove(tempPos);
+        incomingErrors.remove(tempPos);
         adapter.notifyDataSetChanged();
         Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
     }
-
-
 
     @Override
     public void speechClicked(View view, final String errorCode) {

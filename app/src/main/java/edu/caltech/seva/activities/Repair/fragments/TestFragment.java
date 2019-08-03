@@ -33,6 +33,7 @@ import edu.caltech.seva.activities.Main.Fragments.Notifications;
 import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.activities.Repair.RepairActivity;
 import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.ToiletsDO;
 import edu.caltech.seva.models.UsersDO;
 
@@ -41,6 +42,7 @@ import edu.caltech.seva.models.UsersDO;
 public class TestFragment extends Fragment {
 
     DynamoDBMapper dynamoDBMapper;
+    PrefManager prefManager;
     private static final String ERROR_CODE = "ERROR_CODE";
     private static final String TOILET_ID = "TOILET_ID";
     private static final String TIMESTAMP = "TIMESTAMP";
@@ -63,6 +65,7 @@ public class TestFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        prefManager = new PrefManager(getContext());
         View rootView = inflater.inflate(R.layout.repair_test, null);
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -109,15 +112,18 @@ public class TestFragment extends Fragment {
         dbHelper.deleteError(errorCode, toiletId, database);
         dbHelper.close();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final ToiletsDO toilet = new ToiletsDO();
-                toilet.setDeviceId("aws/things/" + toiletId);
-                toilet.setTimestamp(timestamp);
-                dynamoDBMapper.delete(toilet);
-            }
-        }).start();
+        Log.d("log","isGuest:" + prefManager.isGuest());
+        if(!prefManager.isGuest()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final ToiletsDO toilet = new ToiletsDO();
+                    toilet.setDeviceId("aws/things/" + toiletId);
+                    toilet.setTimestamp(timestamp);
+                    dynamoDBMapper.delete(toilet);
+                }
+            }).start();
+        }
         Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

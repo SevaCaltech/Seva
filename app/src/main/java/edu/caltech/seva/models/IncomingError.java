@@ -3,6 +3,7 @@ package edu.caltech.seva.models;
 public class IncomingError {
     private int id;
     private String errorCode;
+    private String repairCode;
     private String toiletId;
     private String date;
     private String repairTitle;
@@ -13,11 +14,12 @@ public class IncomingError {
     private String lng;
     private String description;
 
-       public IncomingError(int id, String errorCode, String toiletId, String date, String repairTitle, String toolInfo, String totalTime, int totalSteps, String lat, String lng, String description) {
+       public IncomingError(int id, String errorCode, String toiletId, String date, String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps, String lat, String lng, String description) {
         this.setId(id);
         this.setErrorCode(errorCode);
         this.setToiletId(toiletId);
         this.setDate(date);
+        this.setRepairCode(repairCode);
         this.setRepairTitle(repairTitle);
         this.setToolInfo(toolInfo);
         this.setTotalTime(totalTime);
@@ -59,6 +61,10 @@ public class IncomingError {
     public String getDate() {
         return date;
     }
+
+    public String getRepairCode() { return repairCode;}
+
+    public void setRepairCode(String repairCode) { this.repairCode = repairCode;}
 
     public String getRepairTitle() {
         return repairTitle;

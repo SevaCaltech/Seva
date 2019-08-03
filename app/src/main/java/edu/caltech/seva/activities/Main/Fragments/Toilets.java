@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -36,6 +37,7 @@ import java.util.List;
 import edu.caltech.seva.R;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.Toilet;
 import edu.caltech.seva.models.UserData;
 import edu.caltech.seva.models.UsersDO;
@@ -45,7 +47,7 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 //TODO: maybe the pin should be red if there's a problem and add a button to get to repair guide, connect to sqlite db and server
 public class Toilets extends Fragment {
 
-
+    private PrefManager prefManager;
     ArrayList<String> toilets = new ArrayList<>();
     ArrayList<Toilet> toiletObj = new ArrayList<>();
 
@@ -59,8 +61,14 @@ public class Toilets extends Fragment {
         View rootView = inflater.inflate(R.layout.activity_toilets,null);
         getActivity().setTitle("My Toilets");
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        toilets.addAll((prefs.getStringSet("toilets",null)));
+        prefManager = new PrefManager(getContext());
+        if (prefManager.getToilets() == null)
+        {
+            Toast.makeText(getContext(),"No toilets assigned..", Toast.LENGTH_LONG).show();
+            return rootView;
+        }
+
+        toilets.addAll(prefManager.getToilets());
         Log.d("log", "toilets read: "+ toilets);
 
         DbHelper dbHelper = new DbHelper(getContext());
@@ -123,24 +131,28 @@ public class Toilets extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        if (prefManager.getToilets() != null)
+            mMapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onPause();
+        if (prefManager.getToilets() != null)
+            mMapView.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onDestroy();
+        if (prefManager.getToilets() != null)
+            mMapView.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        if (prefManager.getToilets() != null)
+            mMapView.onLowMemory();
     }
 }
