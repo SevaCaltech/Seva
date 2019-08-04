@@ -8,31 +8,23 @@ Design: [Anastasia Hanan | Case Study:SEVA](https://www.anastasiahanan.com/calte
 Research: [Michael R. Hoffmann | Self-contained Toilet Wastewater Treatment](http://www.hoffmann.caltech.edu/research/seva.html)  
 
 ### Screenshots
-<img src="docs/screenshots/getstarted1.png" alt="getstarted1" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="docs/screenshots/getstarted2.png" alt="getstarted2" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/getstarted1.png" alt="getstarted1" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/getstarted2.png" alt="getstarted2" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="docs/screenshots/getstarted3.png" alt="getstarted3" width="250"/>
 <br>
 <br>
-<img src="docs/screenshots/getstarted4.png" alt="getstarted4" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="docs/screenshots/login.png" alt="login" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/getstarted4.png" alt="getstarted4" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/login.png" alt="login" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="docs/screenshots/home.png" alt="home" width="250"/>
 <br>
 <br>
-<img src="docs/screenshots/navdrawer.png" alt="navdrawer" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="docs/screenshots/notification.png" alt="notification" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/navdrawer.png" alt="navdrawer" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/notification.png" alt="notification" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="docs/screenshots/notificationview.png" alt="notificationview" width="250"/>
 <br>
 <br>
-<img src="docs/screenshots/repairtitle.png" alt="repairtitle" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="docs/screenshots/repairstep.png" alt="repairstep" width="250"/>
-&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/repairtitle.png" alt="repairtitle" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="docs/screenshots/repairstep.png" alt="repairstep" width="250"/>&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="docs/screenshots/settings.png" alt="settings" width="250"/>
 <br>
 <br>
@@ -72,16 +64,23 @@ DynamoDB will store more detailed information about each user, essentially their
 {
   "displayName": "test",
   "email": "test@gmail.com",
+  "phone": "+15555555555"
   "toilets": [
-    "toilet6",
-    "toilet2"
+    "toilet_ip_address_1",
+    "toilet_ip_address_2"
   ],
   "uid": "dfbfd6d8-85aa-4da0-9d56-b730a7202fd2"
 }
 ```
 5. Click `Save` and make sure the new user shows up in the table.
 #### SNS
-*TBD there might be a Lambda function for this.*
+AWS Simple Notification Service (SNS) handles sending error notification messages to the operators. Where users are subscribed to each toilet as a topic.  
+*There might be a Lambda function to do this automatically in the future.*  
+
+6. Log into [Amazon SNS](https://console.aws.amazon.com/sns/v3/home?region=us-east-1#/dashboard). Click `Topics`, select the toilet that the operator is in charge of, and click `Create subscription`. 
+ <img src="docs/readme/sns-1.jpg" alt="Create item" width="800"/>
+
+7. Select `SMS` from the dropdown `Protocol` menu, fill in the `Endpoint` field with the user's phone number, and hit `Create subscription`.
 
 ### Adding repair guides
 This is all done in DBBrowser. The database can either be manually edited or a csv can be imported.  

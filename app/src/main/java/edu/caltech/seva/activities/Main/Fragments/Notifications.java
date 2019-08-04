@@ -78,15 +78,15 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         DbHelper dbHelper = new DbHelper(getContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         Cursor cursor = dbHelper.readErrorCode(database);
-        String errorCode,toiletId,date;
+        String errorCode,toiletIP,date;
         int id;
         if(cursor.getCount()>0) {
             while (cursor.moveToNext()) {
                 id = cursor.getInt(cursor.getColumnIndex("id"));
                 errorCode = cursor.getString(cursor.getColumnIndex(DbContract.ERROR_CODE));
-                toiletId = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_ID));
+                toiletIP = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_IP));
                 date = cursor.getString(cursor.getColumnIndex(DbContract.NOTIFY_DATE));
-                incomingErrors.add(new IncomingError(id,errorCode,toiletId,date,null,null,null,null,0,null,null,null));
+                incomingErrors.add(new IncomingError(id,errorCode,toiletIP,date,null,null,null,null,null,0,null,null,null));
             }
             cursor.close();
         }
@@ -124,16 +124,18 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
 
         //gets info from toiletInfo
         for (int i=0;i<incomingErrors.size();i++){
-            Cursor cursor2 = dbHelper.readToiletInfo(database,incomingErrors.get(i).getToiletId());
-            String lat,lng,description;
+            Cursor cursor2 = dbHelper.readToiletInfo(database,incomingErrors.get(i).getToiletIP());
+            String lat,lng,description, toiletName;
             if(cursor2.getCount()>0){
                 cursor2.moveToFirst();
                 lat = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_LAT));
                 lng = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_LNG));
                 description = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_DESC));
+                toiletName = cursor2.getString(cursor2.getColumnIndex(DbContract.TOILET_NAME));
                 incomingErrors.get(i).setLat(lat);
                 incomingErrors.get(i).setLng(lng);
                 incomingErrors.get(i).setDescription(description);
+                incomingErrors.get(i).setToiletName(toiletName);
             }
             cursor2.close();
         }
@@ -176,8 +178,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         intent.putExtra("toolInfo", incomingError.getToolInfo());
         intent.putExtra("totalTime", incomingError.getTotalTime());
         intent.putExtra("totalSteps", incomingError.getTotalSteps());
-        intent.putExtra("toiletId", incomingError.getToiletId());
+        intent.putExtra("toiletIP", incomingError.getToiletIP());
         intent.putExtra("timestamp", incomingError.getDate());
+        intent.putExtra("toiletName", incomingError.getToiletName());
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

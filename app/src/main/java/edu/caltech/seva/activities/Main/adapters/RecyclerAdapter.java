@@ -61,7 +61,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         Date d = new Date(time);
         String date = new SimpleDateFormat("hh:mm MM/dd/yyyy").format(d);
 
-        holder.notifyText.setText(arrayList.get(position).getToiletId());
+        holder.notifyText.setText(arrayList.get(position).getToiletName());
         holder.repairTitle.setText("Error: " + arrayList.get(position).getRepairTitle());
         holder.notifyDate.setText(date);
         holder.toolInfo.setText("Tools:" + arrayList.get(position).getToolInfo());

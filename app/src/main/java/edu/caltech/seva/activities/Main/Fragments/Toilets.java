@@ -75,16 +75,17 @@ public class Toilets extends Fragment {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         for(int i=0;i<toilets.size();i++) {
             Cursor cursor = dbHelper.readToiletInfo(database, toilets.get(i));
-            String lat, lng, description;
+            String lat, lng, description, toiletName;
             String[] coords = new String[2];
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 lat = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_LAT));
                 lng = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_LNG));
                 description = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_DESC));
+                toiletName = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_NAME));
                 coords[0] = lat;
                 coords[1] = lng;
-                Toilet tempToilet = new Toilet(coords,description);
+                Toilet tempToilet = new Toilet(coords,description,toiletName);
                 toiletObj.add(tempToilet);
             }
         }
@@ -115,7 +116,7 @@ public class Toilets extends Fragment {
 
                     googleMap.addMarker(new MarkerOptions()
                     .position(latLng)
-                    .title("Toilet:")
+                    .title(toilet.getToiletName())
                     .snippet(toilet.getDescription())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location)));
                     bld.include(latLng);

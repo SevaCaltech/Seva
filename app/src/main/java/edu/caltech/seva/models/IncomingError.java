@@ -4,7 +4,8 @@ public class IncomingError {
     private int id;
     private String errorCode;
     private String repairCode;
-    private String toiletId;
+    private String toiletIP;
+    private String toiletName;
     private String date;
     private String repairTitle;
     private String toolInfo;
@@ -14,13 +15,14 @@ public class IncomingError {
     private String lng;
     private String description;
 
-       public IncomingError(int id, String errorCode, String toiletId, String date, String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps, String lat, String lng, String description) {
+       public IncomingError(int id, String errorCode, String toiletIP, String date, String repairCode, String toiletName, String repairTitle, String toolInfo, String totalTime, int totalSteps, String lat, String lng, String description) {
         this.setId(id);
         this.setErrorCode(errorCode);
-        this.setToiletId(toiletId);
+        this.setToiletIP(toiletIP);
         this.setDate(date);
         this.setRepairCode(repairCode);
         this.setRepairTitle(repairTitle);
+        this.setToiletName(toiletName);
         this.setToolInfo(toolInfo);
         this.setTotalTime(totalTime);
         this.setTotalSteps(totalSteps);
@@ -46,12 +48,12 @@ public class IncomingError {
         this.errorCode = errorCode;
     }
 
-    public String getToiletId() {
-        return toiletId;
+    public String getToiletIP() {
+        return toiletIP;
     }
 
-    public void setToiletId(String toiletId) {
-        this.toiletId = toiletId;
+    public void setToiletIP(String toiletIP) {
+        this.toiletIP = toiletIP;
     }
 
     public void setDate(String date) {
@@ -65,6 +67,10 @@ public class IncomingError {
     public String getRepairCode() { return repairCode;}
 
     public void setRepairCode(String repairCode) { this.repairCode = repairCode;}
+
+    public String getToiletName() {return toiletName;}
+
+    public void setToiletName(String toiletName) { this.toiletName = toiletName;}
 
     public String getRepairTitle() {
         return repairTitle;

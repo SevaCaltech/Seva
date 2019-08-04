@@ -27,12 +27,12 @@ public class DbHelper extends SQLiteAssetHelper{
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.ERROR_CODE,errorCode);
         contentValues.put(DbContract.NOTIFY_DATE,date);
-        contentValues.put(DbContract.TOILET_ID,toiletId);
+        contentValues.put(DbContract.TOILET_IP,toiletId);
         database.insert(DbContract.NOTIFY_TABLE,null,contentValues);
     }
 
     public Cursor readErrorCode(SQLiteDatabase database) {
-        String[] projection = {"id",DbContract.ERROR_CODE,DbContract.TOILET_ID,DbContract.NOTIFY_DATE};
+        String[] projection = {"id",DbContract.ERROR_CODE,DbContract.TOILET_IP,DbContract.NOTIFY_DATE};
         return (database.query(DbContract.NOTIFY_TABLE,projection,null,null,null,null,null));
     }
 
@@ -53,9 +53,9 @@ public class DbHelper extends SQLiteAssetHelper{
         return (database.query(DbContract.INFO_TABLE,projection,selection,null,null,null,null));
     }
 
-    public Cursor readToiletInfo(SQLiteDatabase database, String toiletId){
+    public Cursor readToiletInfo(SQLiteDatabase database, String toiletIP){
         String[] projection = {"*"};
-        String selection = DbContract.TOILET_ID+" = '"+toiletId+"'";
+        String selection = DbContract.TOILET_IP+" = '"+toiletIP+"'";
         return (database.query(DbContract.TOILET_INFO_TABLE,projection,selection,null,null,null,null));
     }
 
@@ -69,8 +69,8 @@ public class DbHelper extends SQLiteAssetHelper{
         return(database.rawQuery(query,null));
     }
 
-    public void deleteError(String errorCode, String toiletId, SQLiteDatabase database){
-        String selection = DbContract.ERROR_CODE + "  = '" + errorCode + "' AND " + DbContract.TOILET_ID + " = '" + toiletId + "'";
+    public void deleteError(String errorCode, String toiletIP, SQLiteDatabase database){
+        String selection = DbContract.ERROR_CODE + "  = '" + errorCode + "' AND " + DbContract.TOILET_IP + " = '" + toiletIP + "'";
         database.delete(DbContract.NOTIFY_TABLE,selection,null);
    }
 

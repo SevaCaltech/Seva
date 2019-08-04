@@ -6,11 +6,12 @@ public class DbContract {
     public static final String NOTIFY_TABLE = "notificationInfo";
     public static final String REPAIR_CODE = "repairCode";
     public static final String NOTIFY_DATE = "date";
-    public static final String TOILET_ID = "toiletId";
+    public static final String TOILET_NAME = "toiletName";
     public static final String UPDATE_UI_FILTER = "josh.caltech.seva.seva_josh.UPDATE_UI";
 
     //Table for accessing toilet info, also uses TOILET_ID from above
     public static final String TOILET_INFO_TABLE = "toiletInfo";
+    public static final String TOILET_IP = "toiletIP";
     public static final String TOILET_LAT = "latitude";
     public static final String TOILET_LNG = "longitude";
     public static final String TOILET_DESC = "description";
