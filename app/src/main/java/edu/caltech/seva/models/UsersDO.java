@@ -17,6 +17,7 @@ public class UsersDO {
     private String _uid;
     private String _displayName;
     private String _phone;
+    private String _email;
     private List<String> _toilets;
 
     @DynamoDBHashKey(attributeName = "uid")
@@ -56,4 +57,12 @@ public class UsersDO {
         this._phone = _phone;
     }
 
+    @DynamoDBAttribute(attributeName = "email")
+    public String getEmail() {
+        return _email;
+    }
+
+    public void setEmail(final String _email) {
+        this._email = _email;
+    }
 }

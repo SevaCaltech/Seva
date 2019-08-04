@@ -61,10 +61,10 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 public class Home extends Fragment {
     private PrefManager prefManager;
     private CognitoCachingCredentialsProvider creds;
-    TextView displayName, id, numNotifications, numToilets;
+    TextView displayName, subtext, numNotifications, numToilets;
     Button helpButton;
     private BroadcastReceiver broadcastReceiver;
-    static String name, uid;
+    static String name, uid, email;
     ArrayList<String> toilets = new ArrayList<>();
     UsersDO user = new UsersDO();
 //    ArrayList<ToiletsDO> dynamoToilets = new ArrayList<>();
@@ -79,13 +79,14 @@ public class Home extends Fragment {
         View rootView = inflater.inflate(R.layout.activity_home, null);
         helpButton = (Button) rootView.findViewById(R.id.helpButton);
         displayName = (TextView) rootView.findViewById(R.id.opName);
-        id = (TextView) rootView.findViewById(R.id.opID);
+        subtext = (TextView) rootView.findViewById(R.id.opID);
         numNotifications = (TextView) rootView.findViewById(R.id.numNotifications);
         numToilets = (TextView) rootView.findViewById(R.id.numToilets);
 
         prefManager = new PrefManager(getContext());
         uid = prefManager.getUid();
         name = prefManager.getUsername();
+        email = prefManager.getEmail();
 
         if( prefManager.isFirstTimeLaunch() && !prefManager.isGuest()) {
             prefManager.setFirstTimeLaunch(false);
@@ -115,15 +116,17 @@ public class Home extends Fragment {
             loadUser(creds);
         }
         else {
+            toilets.clear();
             if (prefManager.getToilets() != null)
                 toilets.addAll(prefManager.getToilets());
             final String numString = Integer.toString(toilets.size());
             displayName.setText(name);
             numToilets.setText(numString);
-            id.setText(uid);
+            subtext.setText(email);
 
             Log.d("log", "SavedPrefs: ");
             Log.d("log", "\tdisplayName: " + name);
+            Log.d("log", "\temail: " + email);
             Log.d("log", "\ttoilets: " + toilets);
             Log.d("log", "\tuid: " + uid);
             Log.d("log","\tisGuest: " + prefManager.isGuest());
@@ -157,6 +160,7 @@ public class Home extends Fragment {
             public void run() {
                 user = dynamoDBMapper.load(UsersDO.class, uid);
                 name = user.getDisplayName();
+                email = user.getEmail();
                 toilets.clear();
                 toilets.addAll(user.getToilets());
                 final int num = toilets.size();
@@ -164,6 +168,7 @@ public class Home extends Fragment {
 
                 Log.d("log", "loading user...");
                 Log.d("log", "\tdisplayName: " + name);
+                Log.d("log", "\temail: " + email);
                 Log.d("log", "\ttoilets: " + toilets);
                 Log.d("log", "\tuid: " + uid);
                 Log.d("log","\tisGuest: " + prefManager.isGuest());
@@ -177,7 +182,7 @@ public class Home extends Fragment {
                     public void run() {
                         displayName.setText(name);
                         numToilets.setText(numString);
-                        id.setText(uid);
+                        subtext.setText(email);
                     }
                 });
 
@@ -188,7 +193,7 @@ public class Home extends Fragment {
                             .withConsistentRead(false);
                     PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
                     for(ToiletsDO row:list){
-                        Log.d("log", row.getDeviceId().substring(11));
+//                        Log.d("log", row.getDeviceId().substring(11));
                         DbHelper dbHelper = new DbHelper(getContext());
                         SQLiteDatabase database =dbHelper.getWritableDatabase();
                         dbHelper.saveErrorCode(row.getData().get("error"),row.getDeviceId().substring(11),row.getTimestamp(),database);

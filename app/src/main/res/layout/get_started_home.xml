@@ -1,12 +1,13 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:orientation="vertical"
 android:background="@color/colorPrimary">
 
     <LinearLayout
+        android:id="@+id/logo_header"
         android:layout_width="match_parent"
-        android:layout_height="115dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="115dp"
         android:background="@color/colorPrimary"
         android:gravity="center"
@@ -48,6 +49,8 @@ android:background="@color/colorPrimary">
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
+        android:id="@+id/blurb"
+        android:layout_below="@+id/logo_header"
         android:lineSpacingMultiplier="1.17"
         android:textColor="@android:color/white"
         android:textAlignment="center"
@@ -55,15 +58,16 @@ android:background="@color/colorPrimary">
         android:textStyle="bold"
         android:layout_marginTop="153dp"
         android:width="234dp"
-        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
         android:text="Connecting users to sanitation service."/>
 
     <Button
         android:id="@+id/get_started_button"
+        android:layout_below="@+id/blurb"
         android:layout_width="wrap_content"
         android:layout_height="42dp"
         android:width="239dp"
-        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="29dp"
         android:text="Get Started"
         android:textColor="@android:color/white"
@@ -74,17 +78,13 @@ android:background="@color/colorPrimary">
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="32.5dp"
+        android:layout_below="@id/get_started_button"
         android:width="238dp"
         android:layout_marginTop="24dp"
-        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
         android:text="Log In"
         android:background="@drawable/login_button"
         android:textColor="@android:color/white"
         />
 
-    <!--<View-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="1dp"-->
-        <!--android:alpha=".5">-->
-    <!--</View>-->
-</LinearLayout>
+</RelativeLayout>
