@@ -57,7 +57,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         //sets up adapter, readErrorFromDb should get the notifications that have already been stored in the db
         adapter = new RecyclerAdapter(getContext(),incomingErrors);
         adapter.setClickListener(this);
+        adapter.setHasStableIds(true);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(4);
         recyclerView.setAdapter(adapter);
         readErrorFromDb();
 

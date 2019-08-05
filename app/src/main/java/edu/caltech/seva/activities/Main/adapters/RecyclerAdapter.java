@@ -36,7 +36,7 @@ import edu.caltech.seva.models.IncomingError;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
     //TODO: the notifications should come from sms listener, maybe sqlite db
-    private ArrayList<IncomingError> arrayList = new ArrayList<>();
+    private ArrayList<IncomingError> arrayList;
     private ClickListener clickListener;
     private Context context;
 
@@ -92,6 +92,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             holder.gMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         }
     }
+
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, OnMapReadyCallback {
         private TextView notifyText;

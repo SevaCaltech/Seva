@@ -6,11 +6,15 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
+import android.util.Log;
 
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.helpers.DbContract;
+import edu.caltech.seva.models.ToiletsDO;
 
 public class DbHelper extends SQLiteAssetHelper{
 
@@ -23,21 +27,46 @@ public class DbHelper extends SQLiteAssetHelper{
 
     }
 
-    public void saveErrorCode(String errorCode,String toiletId,String date, SQLiteDatabase database) {
+    public void saveErrorCode(String errorCode,String toiletIP,String date, SQLiteDatabase database) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DbContract.ERROR_CODE,errorCode);
         contentValues.put(DbContract.NOTIFY_DATE,date);
-        contentValues.put(DbContract.TOILET_IP,toiletId);
+        contentValues.put(DbContract.TOILET_IP,toiletIP);
         database.insert(DbContract.NOTIFY_TABLE,null,contentValues);
     }
 
+    public int saveErrorCodeBatch(PaginatedQueryList<ToiletsDO> list, SQLiteDatabase database){
+        int numErrors = list.size();
+        int numNull = 0;
+        database.beginTransaction();
+        String sql = "Insert or Replace into " + DbContract.NOTIFY_TABLE + " (" +
+                DbContract.ERROR_CODE + ", " + DbContract.NOTIFY_DATE + ", " + DbContract.TOILET_IP
+                + ") values (?,?,?)";
+        SQLiteStatement insert = database.compileStatement(sql);
+        for(ToiletsDO row:list){
+            //for now skip null values, probably want to delete in the future
+            if (row.getData().get("error") == null){
+                numNull += 1;
+                continue;
+            }
+            insert.bindString(1, row.getData().get("error"));
+            insert.bindString(2, row.getTimestamp());
+            insert.bindString(3, row.getDeviceId().substring(11));
+            insert.execute();
+        }
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        Log.d("log","Done syncing errors.");
+        return (numErrors - numNull);
+    }
+
     public Cursor readErrorCode(SQLiteDatabase database) {
-        String[] projection = {"id",DbContract.ERROR_CODE,DbContract.TOILET_IP,DbContract.NOTIFY_DATE};
+        String[] projection = {DbContract.NOTIFY_ID,DbContract.ERROR_CODE,DbContract.TOILET_IP,DbContract.NOTIFY_DATE};
         return (database.query(DbContract.NOTIFY_TABLE,projection,null,null,null,null,null));
     }
 
     public void deleteErrorCodeId(int id, SQLiteDatabase database) {
-        String selection = "id = "+id;
+        String selection = DbContract.NOTIFY_ID + " = " + id;
         database.delete(DbContract.NOTIFY_TABLE,selection,null);
     }
 

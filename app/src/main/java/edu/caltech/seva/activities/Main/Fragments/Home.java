@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,18 +61,22 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 //TODO: connect help button to email/phone?
 //the Home fragment that is the default starting page of the app which displays the user info
 public class Home extends Fragment {
+    //utility helpers
     private PrefManager prefManager;
-    private CognitoCachingCredentialsProvider creds;
-    TextView displayName, subtext, numNotifications, numToilets;
-    Button helpButton;
     private BroadcastReceiver broadcastReceiver;
-    static String name, uid, email;
-    ArrayList<String> toilets = new ArrayList<>();
-    UsersDO user = new UsersDO();
-//    ArrayList<ToiletsDO> dynamoToilets = new ArrayList<>();
     DynamoDBMapper dynamoDBMapper;
     private final String CHANNEL_ID = "seva_notification";
     private final int NOTIFICATION_ID = 1;
+
+    //data objects
+    private UsersDO user = new UsersDO();
+    private ArrayList<String> toilets = new ArrayList<>();
+
+    //ui elements
+    private ProgressBar progressBar;
+    private TextView displayName, subtext, numNotifications, numToilets;
+    private Button helpButton;
+    private static String name, uid, email;
 
 
     @Nullable
@@ -82,28 +88,24 @@ public class Home extends Fragment {
         subtext = (TextView) rootView.findViewById(R.id.opID);
         numNotifications = (TextView) rootView.findViewById(R.id.numNotifications);
         numToilets = (TextView) rootView.findViewById(R.id.numToilets);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.spin_kit);
 
         prefManager = new PrefManager(getContext());
         uid = prefManager.getUid();
         name = prefManager.getUsername();
         email = prefManager.getEmail();
 
+        displayName.setText(name);
+        numToilets.setText("0");
+        subtext.setText(email);
+        numNotifications.setText("0");
+
         if( prefManager.isFirstTimeLaunch() && !prefManager.isGuest()) {
             prefManager.setFirstTimeLaunch(false);
-            Log.d("log", "Initializing AWS...");
-
-            // Initialize the Amazon Cognito credentials provider
-            IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
-            try{
-                JSONObject myJSON = identityManager.getConfiguration().optJsonObject("CredentialsProvider");
-                final String IDENTITY_POOL_ID = myJSON.getString("PoolId");
-                final String REGION = myJSON.getString("Region");
-                creds = new CognitoCachingCredentialsProvider(getContext(), IDENTITY_POOL_ID , Regions.fromName(REGION));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            progressBar.setVisibility(View.VISIBLE);
 
             //initialize dynamodb
+            Log.d("log", "Initializing AWS...");
             AWSMobileClient.getInstance().initialize(getContext()).execute();
             AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
             AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
@@ -113,7 +115,8 @@ public class Home extends Fragment {
                     .dynamoDBClient(dynamoDBClient)
                     .awsConfiguration(configuration)
                     .build();
-            loadUser(creds);
+            initialSync sync = new initialSync();
+            sync.execute();
         }
         else {
             toilets.clear();
@@ -150,64 +153,7 @@ public class Home extends Fragment {
                 displayNotification();
             }
         };
-
         return rootView;
-    }
-
-    public void loadUser(final CognitoCachingCredentialsProvider creds) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                user = dynamoDBMapper.load(UsersDO.class, uid);
-                name = user.getDisplayName();
-                email = user.getEmail();
-                toilets.clear();
-                toilets.addAll(user.getToilets());
-                final int num = toilets.size();
-                final String numString = Integer.toString(num);
-
-                Log.d("log", "loading user...");
-                Log.d("log", "\tdisplayName: " + name);
-                Log.d("log", "\temail: " + email);
-                Log.d("log", "\ttoilets: " + toilets);
-                Log.d("log", "\tuid: " + uid);
-                Log.d("log","\tisGuest: " + prefManager.isGuest());
-
-                Set<String> toiletSet = new HashSet<String>();
-                toiletSet.addAll(toilets);
-                prefManager.setToilets(toiletSet);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        displayName.setText(name);
-                        numToilets.setText(numString);
-                        subtext.setText(email);
-                    }
-                });
-
-                //get all errors for assigned toilets and store in local db
-                for(String toilet:toilets) {
-                    DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
-                            .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
-                            .withConsistentRead(false);
-                    PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
-                    for(ToiletsDO row:list){
-//                        Log.d("log", row.getDeviceId().substring(11));
-                        DbHelper dbHelper = new DbHelper(getContext());
-                        SQLiteDatabase database =dbHelper.getWritableDatabase();
-                        dbHelper.saveErrorCode(row.getData().get("error"),row.getDeviceId().substring(11),row.getTimestamp(),database);
-                        dbHelper.close();
-                    }
-                }
-            }
-        });
-        t.start();
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -216,7 +162,6 @@ public class Home extends Fragment {
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(DbContract.UPDATE_UI_FILTER));
     }
 
-    //unregisters broadcastreceiver
     @Override
     public void onPause() {
         super.onPause();
@@ -246,5 +191,71 @@ public class Home extends Fragment {
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private class initialSync extends AsyncTask<Void, String, String> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            user = dynamoDBMapper.load(UsersDO.class, uid);
+            name = user.getDisplayName();
+            email = user.getEmail();
+            toilets.clear();
+            toilets.addAll(user.getToilets());
+            final int num = toilets.size();
+            final String numString = Integer.toString(num);
+
+            Log.d("log", "loading user...");
+            Log.d("log", "\tdisplayName: " + name);
+            Log.d("log", "\temail: " + email);
+            Log.d("log", "\ttoilets: " + toilets);
+            Log.d("log", "\tuid: " + uid);
+            Log.d("log","\tisGuest: " + prefManager.isGuest());
+
+            Set<String> toiletSet = new HashSet<String>();
+            toiletSet.addAll(toilets);
+            prefManager.setToilets(toiletSet);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    displayName.setText(name);
+                    numToilets.setText(numString);
+                    subtext.setText(email);
+                }
+            });
+
+            //get all errors for assigned toilets and store in local db
+            int total = 0;
+            for(String toilet:toilets) {
+                int numErrors;
+                DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
+                        .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
+                        .withConsistentRead(false);
+                PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
+                DbHelper dbHelper = new DbHelper(getContext());
+                SQLiteDatabase database =dbHelper.getWritableDatabase();
+                numErrors = dbHelper.saveErrorCodeBatch(list, database);
+                total += numErrors;
+                publishProgress(toilet, Integer.toString(numErrors), Integer.toString(total));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            Log.d("log", values[0] + ": " +  values[1] + " errors.");
+            Log.d("log", "total: " + values[2]);
+            numNotifications.setText(values[2]);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 }

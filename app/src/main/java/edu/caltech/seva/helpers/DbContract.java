@@ -4,6 +4,7 @@ public class DbContract {
 
     //Table for holding incoming error information
     public static final String NOTIFY_TABLE = "notificationInfo";
+    public static final String NOTIFY_ID = "id";
     public static final String REPAIR_CODE = "repairCode";
     public static final String NOTIFY_DATE = "date";
     public static final String TOILET_NAME = "toiletName";

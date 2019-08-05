@@ -29,6 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -106,13 +107,15 @@ public class Toilets extends Fragment {
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
                // googleMap.setMyLocationEnabled(true);
+                googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                googleMap.setBuildingsEnabled(true);
 
-                int lat;
-                int lng;
+                int lat, lng;
+                LatLng latLng = new LatLng(0,0);
                 LatLngBounds.Builder bld = new LatLngBounds.Builder();
                 for(Toilet toilet:toiletObj){
                     String[] coordinates = toilet.getCoords();
-                    LatLng latLng = new LatLng(Integer.valueOf(coordinates[0]),Integer.valueOf(coordinates[1]));
+                    latLng = new LatLng(Double.valueOf(coordinates[0]),Double.valueOf(coordinates[1]));
 
                     googleMap.addMarker(new MarkerOptions()
                     .position(latLng)
@@ -122,7 +125,11 @@ public class Toilets extends Fragment {
                     bld.include(latLng);
                 }
                 LatLngBounds bounds = bld.build();
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150));
+                if (toiletObj.size() == 1)
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
+                else
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 150));
+
             }
         });
 

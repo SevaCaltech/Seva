@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -115,15 +116,16 @@
 
         </LinearLayout>
 
-        <ProgressBar
+        <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/progressBar"
+            android:layout_marginTop="23.5dp"
+            style="@style/SpinKitView.Large.Pulse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="23.5dp"
             android:visibility="gone"
-            android:indeterminateTint="@color/colorPrimary"
-            android:indeterminateTintMode="src_in"/>
+            android:indeterminateTintMode="src_in"
+            app:SpinKit_Color="@color/colorPrimary" />
 
     </LinearLayout>
 </LinearLayout>
