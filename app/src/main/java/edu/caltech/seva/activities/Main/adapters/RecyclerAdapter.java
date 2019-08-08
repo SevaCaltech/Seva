@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,9 +71,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
         if(holder.notifyMap != null){
             holder.notifyMap.setVisibility(View.VISIBLE);
-            holder.initializeMapView();
-            if (holder.gMap != null)
-                moveMap(holder.gMap,Double.valueOf(arrayList.get(position).getLat()), Double.valueOf(arrayList.get(position).getLng()),arrayList.get(position).getDescription());
+
+            String lat =arrayList.get(position).getLat();
+            String lng = arrayList.get(position).getLng();
+            Log.d("log",arrayList.get(position).getToiletName() + ": " +lat+", "+lng);
+            if(lat == null|| lng == null)
+                return;
+            else{
+                LatLng latLng = new LatLng(Double.valueOf(arrayList.get(position).getLat()), Double.valueOf(arrayList.get(position).getLng()));
+                holder.initializeMapView();
+                holder.setMapLocation(latLng);
+            }
         }
     }
 
@@ -89,6 +98,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public void onViewRecycled(@NonNull MyViewHolder holder) {
         super.onViewRecycled(holder);
         if (holder.gMap!=null){
+            holder.gMap.clear();
             holder.gMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         }
     }
@@ -108,6 +118,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
         private GoogleMap gMap;
         private MapView notifyMap;
+        protected LatLng mMapLocation;
         GoogleMapOptions options = new GoogleMapOptions().liteMode(true);
 
         public MyViewHolder(@NonNull View view) {
@@ -137,17 +148,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         @Override
         public void onClick(View view) {
             if(clickListener != null) {
+                int position = getAdapterPosition();
                 switch (view.getId()){
                     case R.id.acceptButton:
-                        clickListener.acceptClicked(view, arrayList.get(getAdapterPosition()));
+                        clickListener.acceptClicked(view, arrayList.get(position));
                         break;
                     case R.id.declineButton:
-                        clickListener.declineClicked(view,getAdapterPosition(),arrayList.get(getAdapterPosition()).getId());
+                        clickListener.declineClicked(view,position,arrayList.get(position).getId());
                         break;
                     case R.id.mapButton:
-                        clickListener.mapClicked(view,arrayList.get(getAdapterPosition()).getLat(),arrayList.get(getAdapterPosition()).getLng());
+                        clickListener.mapClicked(view,arrayList.get(position).getLat(),arrayList.get(position).getLng());
                     case R.id.speechMapButton:
-                        clickListener.speechClicked(view,arrayList.get(getAdapterPosition()).getErrorCode());
+                        clickListener.speechClicked(view,arrayList.get(position).getErrorCode());
                 }
 
             }
@@ -157,8 +169,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         public void onMapReady(GoogleMap googleMap) {
             MapsInitializer.initialize(context);
             gMap = googleMap;
+            gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             googleMap.getUiSettings().setMapToolbarEnabled(false);
-            moveMap(gMap,Double.valueOf(arrayList.get(getAdapterPosition()).getLat()), Double.valueOf(arrayList.get(getAdapterPosition()).getLng()),arrayList.get(getAdapterPosition()).getDescription());
+
+            if (mMapLocation != null)
+                updateMapContents();
         }
 
         public void initializeMapView() {
@@ -167,15 +182,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                 notifyMap.getMapAsync(this);
             }
         }
-    }
 
-    public void moveMap(GoogleMap gMap, double latitude, double longitude, String description) {
-        LatLng latLng = new LatLng(latitude,longitude);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12);
-        gMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location)));
-        gMap.moveCamera(cameraUpdate);
+        public void setMapLocation(LatLng mapLocation){
+            mMapLocation = mapLocation;
+            if(gMap != null)
+                updateMapContents();
+        }
+
+        public void updateMapContents() {
+            gMap.clear();
+            gMap.addMarker(new MarkerOptions()
+                    .position(mMapLocation)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_location)));
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(mMapLocation, 16);
+            gMap.moveCamera(cameraUpdate);
+        }
     }
 
     //interface is used so that the itemClicked function is taken care of by the Notification fragment not the adapter
