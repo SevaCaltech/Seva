@@ -1,25 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recyclerview"
-        android:scrollbars="vertical">
-    </android.support.v7.widget.RecyclerView>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_bar"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/text_light"
+                android:textSize="14dp"
+                android:text="Filter: "/>
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:spinnerMode="dropdown"
+                android:background="@null"
+                android:id="@+id/toilet_spinner">
+            </Spinner>
+        </LinearLayout>
 
-    <com.github.ybq.android.spinkit.SpinKitView
-        android:id="@+id/notify_progress"
-        style="@style/SpinKitView.Large.Pulse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:visibility="gone"
-        app:SpinKit_Color="@color/colorPrimary" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/text_light"
+                android:textSize="14dp"
+                android:text="Sort: " />
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:spinnerMode="dropdown"
+                android:background="@null"
+                android:id="@+id/sort_spinner">
+            </Spinner>
+        </LinearLayout>
 
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recyclerview"
+            android:scrollbars="vertical"
+            android:layout_below="@id/spinner_bar">
+        </android.support.v7.widget.RecyclerView>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/notify_progress"
+            style="@style/SpinKitView.Large.Pulse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="80dp"
+            android:visibility="gone"
+            app:SpinKit_Color="@color/colorPrimary" />
 
 </RelativeLayout>

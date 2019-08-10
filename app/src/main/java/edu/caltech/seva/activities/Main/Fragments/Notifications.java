@@ -16,22 +16,29 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.IncomingError;
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.adapters.RecyclerAdapter;
@@ -40,7 +47,7 @@ import edu.caltech.seva.activities.Repair.RepairActivity;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 //The notification fragment lists out notifications
-public class Notifications extends Fragment implements RecyclerAdapter.ClickListener, DeleteDialog.DialogData {
+public class Notifications extends Fragment implements RecyclerAdapter.ClickListener, DeleteDialog.DialogData, AdapterView.OnItemSelectedListener {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -51,7 +58,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     private TextToSpeech mTTs;
     public ProgressBar progressBar;
     private Bundle mBundleRecyclerViewState;
+    private PrefManager prefManager;
     private final String KEY_RECYCLER_STATE = "recycler_state";
+    private Spinner toilet_spinner, sort_spinner;
 
     @Nullable
     @Override
@@ -71,11 +80,48 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         adapter.setHasStableIds(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemViewCacheSize(4);
+        recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(adapter);
+
+        //set up spinners
+        prefManager = new PrefManager(getContext());
+        List<String> saved_toilets = new ArrayList<>();
+        saved_toilets.addAll(prefManager.getToilets());
+
+        List<CharSequence> toilet_options = new ArrayList<>();
+        toilet_options.add("All");
+
+        DbHelper dbHelper = new DbHelper(getContext());
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        for(int i=0;i<saved_toilets.size();i++) {
+            Cursor cursor = dbHelper.readToiletInfo(database, saved_toilets.get(i));
+            String toiletName;
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                toiletName = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_NAME));
+                toilet_options.add(toiletName);
+            }
+        }
+        dbHelper.close();
+
+        toilet_spinner = (Spinner) rootView.findViewById(R.id.toilet_spinner);
+        sort_spinner = (Spinner) rootView.findViewById(R.id.sort_spinner);
+        ArrayAdapter<CharSequence> sort_adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.sort_types, R.layout.spinner_item_main);
+        ArrayAdapter<CharSequence> toilet_adapter = new ArrayAdapter<>(
+                getContext(),
+                R.layout.spinner_item_main,
+                toilet_options
+        );
+        sort_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        toilet_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sort_spinner.setAdapter(sort_adapter);
+        toilet_spinner.setAdapter(toilet_adapter);
+        sort_spinner.setOnItemSelectedListener(this);
+        toilet_spinner.setOnItemSelectedListener(this);
 
         Loader load = new Loader();
         load.execute();
-//        readErrorFromDb();
 
         //connects to the ReceiverSMS class that listens for sms notifications from a specific number
         broadcastReceiver = new BroadcastReceiver() {
@@ -100,7 +146,6 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             recyclerView.getLayoutManager().onRestoreInstanceState(listState);
         }
         adapter.notifyDataSetChanged();
-        Log.d("onresume","count: " + adapter.getItemCount());
     }
 
     @Override
@@ -112,8 +157,6 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         mBundleRecyclerViewState = new Bundle();
         Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
         mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
-        Log.d("onpause","count: " + adapter.getItemCount());
-
     }
 
     //will bring up the delete dialog to check if user actually wants to delete the notification item
@@ -189,17 +232,27 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("ondestroy","count: " + adapter.getItemCount());
         if (mTTs!=null) {
             mTTs.stop();
             mTTs.shutdown();
         }
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+        adapter.filter(toilet_spinner.getSelectedItem().toString(),sort_spinner.getSelectedItemPosition());
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+    }
+
     public class Loader extends AsyncTask<Void, Void, String>{
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
+            toilet_spinner.setEnabled(false);
+            sort_spinner.setEnabled(false);
         }
 
         @Override
@@ -211,13 +264,16 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         @Override
         protected void onPostExecute(String s) {
             adapter.notifyDataSetChanged();
+            toilet_spinner.setEnabled(true);
+            sort_spinner.setEnabled(true);
+//            toilet_spinner.setSelection(0);
+            adapter.filter("All",0);
             progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
     //connects to the db and reads each row into an arraylist populated by IncomingError objects
     private void readErrorFromDb(){
-        Log.d("startreading","count: " + adapter.getItemCount());
 
         incomingErrors.clear();
         DbHelper dbHelper = new DbHelper(getContext());
@@ -285,7 +341,6 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             cursor1.close();
         }
         dbHelper.close();
-        Log.d("endreading","count: " + adapter.getItemCount());
 
 //        runOnUiThread(new Runnable() {
 //            @Override

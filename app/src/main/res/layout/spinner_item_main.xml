@@ -1,0 +1,10 @@
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="14dp"
+    android:gravity="center_horizontal"
+    android:textAlignment="gravity"
+    android:textColor="@color/text_light"
+    android:drawableRight="@drawable/baseline_arrow_drop_down_black_24dp"
+    />

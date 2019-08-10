@@ -1,5 +1,6 @@
 package edu.caltech.seva.activities.Main.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
@@ -28,6 +29,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 import edu.caltech.seva.R;
@@ -37,12 +40,16 @@ import edu.caltech.seva.models.IncomingError;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
     //TODO: the notifications should come from sms listener, maybe sqlite db
-    private ArrayList<IncomingError> arrayList;
+    private ArrayList<IncomingError> errorList, filtered;
     private ClickListener clickListener;
     private Context context;
+    private final int SORT_RECENT = 0;
+    private final int SORT_OLDEST = 1;
 
-    public RecyclerAdapter(Context context, ArrayList<IncomingError> arrayList) {
-        this.arrayList = arrayList;
+    public RecyclerAdapter(Context context, ArrayList<IncomingError> errorList) {
+        this.errorList = errorList;
+        this.filtered = new ArrayList<>();
+        this.filtered.addAll(errorList);
         this.context = context;
     }
 
@@ -58,27 +65,28 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     //assign data to textView
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
-        Long time = Long.valueOf(arrayList.get(position).getDate());
+        IncomingError error = filtered.get(position);
+        Long time = Long.valueOf(error.getDate());
         Date d = new Date(time);
         String date = new SimpleDateFormat("hh:mm MM/dd/yyyy").format(d);
 
-        holder.notifyText.setText(arrayList.get(position).getToiletName());
-        holder.repairTitle.setText("Error: " + arrayList.get(position).getRepairTitle());
+        holder.notifyText.setText(error.getToiletName());
+        holder.repairTitle.setText("Error: " + error.getRepairTitle());
         holder.notifyDate.setText(date);
-        holder.toolInfo.setText("Tools:" + arrayList.get(position).getToolInfo());
-        holder.totalTime.setText("Time: " + arrayList.get(position).getTotalTime());
-        holder.description.setText("Location: " + arrayList.get(position).getDescription());
+        holder.toolInfo.setText("Tools:" + error.getToolInfo());
+        holder.totalTime.setText("Time: " + error.getTotalTime());
+        holder.description.setText("Location: " + error.getDescription());
 
         if(holder.notifyMap != null){
             holder.notifyMap.setVisibility(View.VISIBLE);
 
-            String lat =arrayList.get(position).getLat();
-            String lng = arrayList.get(position).getLng();
-            Log.d("log",arrayList.get(position).getToiletName() + ": " +lat+", "+lng);
+            String lat =error.getLat();
+            String lng = error.getLng();
             if(lat == null|| lng == null)
                 return;
             else{
-                LatLng latLng = new LatLng(Double.valueOf(arrayList.get(position).getLat()), Double.valueOf(arrayList.get(position).getLng()));
+                LatLng latLng = new LatLng(Double.valueOf(error.getLat()),
+                        Double.valueOf(error.getLng()));
                 holder.initializeMapView();
                 holder.setMapLocation(latLng);
             }
@@ -91,7 +99,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     @Override
     public int getItemCount() {
-        return arrayList.size();
+        return filtered != null? filtered.size() : 0;
     }
 
     @Override
@@ -103,6 +111,44 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         }
     }
 
+    public void filter(final String toilet_name, final int sort_method){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("log","filter: " + toilet_name + (sort_method == SORT_OLDEST? " by oldest" : " by recent"));
+                filtered.clear();
+                if(toilet_name.equals("All"))
+                    filtered.addAll(errorList);
+                else {
+                    for (IncomingError error: errorList){
+                        if(error.getToiletName().contains(toilet_name))
+                            filtered.add(error);
+                    }
+                }
+
+                try {
+                    Collections.sort(filtered, new Comparator<IncomingError>() {
+                        @Override
+                        public int compare(IncomingError e1, IncomingError e2) {
+                            if (sort_method == SORT_OLDEST)
+                                return e1.getDate().compareTo(e2.getDate());
+                            else
+                                return e2.getDate().compareTo(e1.getDate());
+                        }
+                    });
+                } catch (NullPointerException e) {
+                    Log.d("log","no date field");
+                }
+
+                ((Activity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        }).start();
+    }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, OnMapReadyCallback {
         private TextView notifyText;
@@ -147,21 +193,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         //handles the button clicks on the side of the notification layout
         @Override
         public void onClick(View view) {
+            int position = getAdapterPosition();
+            IncomingError error = filtered.get(position);
             if(clickListener != null) {
-                int position = getAdapterPosition();
                 switch (view.getId()){
                     case R.id.acceptButton:
-                        clickListener.acceptClicked(view, arrayList.get(position));
+                        clickListener.acceptClicked(view, error);
                         break;
                     case R.id.declineButton:
-                        clickListener.declineClicked(view,position,arrayList.get(position).getId());
+                        clickListener.declineClicked(view,position,error.getId());
                         break;
                     case R.id.mapButton:
-                        clickListener.mapClicked(view,arrayList.get(position).getLat(),arrayList.get(position).getLng());
+                        clickListener.mapClicked(view,error.getLat(),error.getLng());
                     case R.id.speechMapButton:
-                        clickListener.speechClicked(view,arrayList.get(position).getErrorCode());
+                        clickListener.speechClicked(view,error.getErrorCode());
                 }
-
             }
         }
 

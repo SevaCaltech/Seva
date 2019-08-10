@@ -70,8 +70,6 @@ public class Toilets extends Fragment {
         }
 
         toilets.addAll(prefManager.getToilets());
-        Log.d("log", "toilets read: "+ toilets);
-
         DbHelper dbHelper = new DbHelper(getContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         for(int i=0;i<toilets.size();i++) {

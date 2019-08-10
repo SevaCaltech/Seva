@@ -30,4 +30,9 @@
         completions."
     </string>
 
+    <string-array name="sort_types">
+        <item>Most recent</item>
+        <item>Least recent</item>
+    </string-array>
+
 </resources>
