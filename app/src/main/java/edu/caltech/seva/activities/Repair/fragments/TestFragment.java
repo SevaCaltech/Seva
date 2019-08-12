@@ -44,18 +44,18 @@ public class TestFragment extends Fragment {
     DynamoDBMapper dynamoDBMapper;
     PrefManager prefManager;
     private static final String ERROR_CODE = "ERROR_CODE";
-    private static final String TOILET_ID = "TOILET_ID";
+    private static final String TOILET_IP = "TOILET_ID";
     private static final String TIMESTAMP = "TIMESTAMP";
 
     public TestFragment() {
 
     }
 
-    public static TestFragment newInstance(String errorCode, String toiletId, String timestamp) {
+    public static TestFragment newInstance(String errorCode, String toiletIP, String timestamp) {
         TestFragment fragment = new TestFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ERROR_CODE, errorCode);
-        bundle.putString(TOILET_ID, toiletId);
+        bundle.putString(TOILET_IP, toiletIP);
         bundle.putString(TIMESTAMP, timestamp);
         fragment.setArguments(bundle);
         return fragment;
@@ -76,7 +76,7 @@ public class TestFragment extends Fragment {
 
         Bundle arguments = getArguments();
         final String errorCode = arguments.getString(ERROR_CODE);
-        final String toiletId = arguments.getString(TOILET_ID);
+        final String toiletIP = arguments.getString(TOILET_IP);
         final String timestamp = arguments.getString(TIMESTAMP);
 
         AWSMobileClient.getInstance().initialize(getContext()).execute();
@@ -99,17 +99,17 @@ public class TestFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getActivity(), "Marked as done..", Toast.LENGTH_SHORT).show();
-                completeRepair(errorCode, toiletId, timestamp);
+                completeRepair(errorCode, toiletIP, timestamp);
             }
         });
         return rootView;
     }
 
     //delete item from dynamodb and sqlite
-    public void completeRepair(final String errorCode, final String toiletId, final String timestamp) {
+    public void completeRepair(final String errorCode, final String toiletIP, final String timestamp) {
         DbHelper dbHelper = new DbHelper(getActivity());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        dbHelper.deleteError(errorCode, toiletId, database);
+        dbHelper.deleteError(errorCode, toiletIP, database);
         dbHelper.close();
 
         Log.d("log","isGuest:" + prefManager.isGuest());
@@ -118,7 +118,7 @@ public class TestFragment extends Fragment {
                 @Override
                 public void run() {
                     final ToiletsDO toilet = new ToiletsDO();
-                    toilet.setDeviceId("aws/things/" + toiletId);
+                    toilet.setDeviceId("aws/things/" + toiletIP);
                     toilet.setTimestamp(timestamp);
                     dynamoDBMapper.delete(toilet);
                 }

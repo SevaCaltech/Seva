@@ -45,7 +45,9 @@ public class ReceiverSMS extends BroadcastReceiver {
                 }
 
             if (address.equals(SPECIAL_PHONE_NUMBER)) {
-                String[] message = body.split(",");
+                int split_index = body.indexOf('>');
+                String[] message = body.substring(split_index+2).split(",");
+                Log.d("log", "message: " + message[0] + "," + message[1] + "," + message[2]);
                 DbHelper dbHelper = new DbHelper(context);
                 SQLiteDatabase database =dbHelper.getWritableDatabase();
                 dbHelper.saveErrorCode(message[0],message[1],message[2],database);

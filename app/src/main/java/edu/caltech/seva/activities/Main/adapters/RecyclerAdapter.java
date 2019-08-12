@@ -2,7 +2,6 @@ package edu.caltech.seva.activities.Main.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,13 +16,10 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -34,7 +30,6 @@ import java.util.Comparator;
 import java.util.Date;
 
 import edu.caltech.seva.R;
-import edu.caltech.seva.activities.Main.Fragments.DeleteDialog;
 import edu.caltech.seva.models.IncomingError;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
@@ -46,10 +41,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     private final int SORT_RECENT = 0;
     private final int SORT_OLDEST = 1;
 
-    public RecyclerAdapter(Context context, ArrayList<IncomingError> errorList) {
-        this.errorList = errorList;
-        this.filtered = new ArrayList<>();
-        this.filtered.addAll(errorList);
+    public RecyclerAdapter(Context context, ArrayList<IncomingError> incomingErrors) {
+        this.errorList = incomingErrors;
+        this.filtered = errorList;
         this.context = context;
     }
 
@@ -116,7 +110,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             @Override
             public void run() {
                 Log.d("log","filter: " + toilet_name + (sort_method == SORT_OLDEST? " by oldest" : " by recent"));
-                filtered.clear();
+                Log.d("log","errorList size: " + errorList.size());
+                filtered = new ArrayList<>();
                 if(toilet_name.equals("All"))
                     filtered.addAll(errorList);
                 else {
@@ -125,6 +120,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                             filtered.add(error);
                     }
                 }
+                Log.d("log","filtered size: " + filtered.size());
 
                 try {
                     Collections.sort(filtered, new Comparator<IncomingError>() {
@@ -149,6 +145,49 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             }
         }).start();
     }
+
+//    public void filter(final String toilet_name, final int sort_method){
+//        Log.d("log","filter: " + toilet_name + (sort_method == SORT_OLDEST? " by oldest" : " by recent"));
+//        Log.d("log","errorList size: " + errorList.size());
+//        filtered = new ArrayList<>();
+//        if(toilet_name.equals("All"))
+//            filtered.addAll(errorList);
+//        else {
+//            for (IncomingError error: errorList){
+//                if(error.getToiletName().contains(toilet_name))
+//                    filtered.add(error);
+//            }
+//        }
+//        Log.d("log","filtered size: " + filtered.size());
+//
+//        try {
+//            Collections.sort(filtered, new Comparator<IncomingError>() {
+//                @Override
+//                public int compare(IncomingError e1, IncomingError e2) {
+//                    if (sort_method == SORT_OLDEST)
+//                        return e1.getDate().compareTo(e2.getDate());
+//                    else
+//                        return e2.getDate().compareTo(e1.getDate());
+//                }
+//            });
+//        } catch (NullPointerException e) {
+//            Log.d("log","no date field");
+//        }
+//        notifyDataSetChanged();
+//    }
+
+    public void deleteNotification(int position){
+        Log.d("log","attempting to remove pos:" + position);
+        errorList.remove(position);
+        filtered.remove(position);
+        notifyDataSetChanged();
+    }
+
+//    public void updateErrorList(ArrayList<IncomingError> errorList){
+//        this.errorList.clear();
+//        this.errorList.addAll(errorList);
+//        notifyDataSetChanged();
+//    }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, OnMapReadyCallback {
         private TextView notifyText;
@@ -205,8 +244,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                         break;
                     case R.id.mapButton:
                         clickListener.mapClicked(view,error.getLat(),error.getLng());
+                        break;
                     case R.id.speechMapButton:
                         clickListener.speechClicked(view,error.getErrorCode());
+                        break;
                 }
             }
         }

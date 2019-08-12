@@ -47,7 +47,7 @@ public class RepairActivity extends AppCompatActivity {
         TabLayout mTabLayout;
         ViewPager mPager;
         MyPagerAdapter mAdapter;
-        String errorCode, repairCode, repairTitle, toolInfo, totalTime, toiletId, timestamp;
+        String errorCode, repairCode, repairTitle, toolInfo, totalTime, toiletIP, timestamp;
         int totalSteps;
 
         //receive error code from the notification clicked and passes to fragments
@@ -57,12 +57,12 @@ public class RepairActivity extends AppCompatActivity {
         toolInfo = getIntent().getStringExtra("toolInfo");
         totalTime = getIntent().getStringExtra("totalTime");
         totalSteps = getIntent().getIntExtra("totalSteps",0);
-        toiletId = getIntent().getStringExtra("toiletId");
+        toiletIP = getIntent().getStringExtra("toiletIP");
         timestamp = getIntent().getStringExtra("timestamp");
 
         //sets up new activity toolbar and tab layout
         setContentView(R.layout.activity_repair);
-        mAdapter = new MyPagerAdapter(getSupportFragmentManager(), errorCode, repairCode, repairTitle, toolInfo, totalTime, totalSteps, toiletId, timestamp);
+        mAdapter = new MyPagerAdapter(getSupportFragmentManager(), errorCode, repairCode, repairTitle, toolInfo, totalTime, totalSteps, toiletIP, timestamp);
         mToolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(mToolbar);
         mToolbar.setTitle("Repair Guide");
@@ -96,10 +96,10 @@ public class RepairActivity extends AppCompatActivity {
 
 //creates a different fragment depending on which position the tab is
 class MyPagerAdapter extends FragmentStatePagerAdapter {
-    private String errorCode, repairCode, repairTitle, toolInfo, totalTime, toiletId, timestamp;
+    private String errorCode, repairCode, repairTitle, toolInfo, totalTime, toiletIP, timestamp;
     private int totalSteps;
 
-    public MyPagerAdapter(FragmentManager fm, String errorCode, String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps, String toiletId, String timestamp) {
+    public MyPagerAdapter(FragmentManager fm, String errorCode, String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps, String toiletIP, String timestamp) {
         super(fm);
         this.errorCode = errorCode;
         this.repairCode = repairCode;
@@ -107,7 +107,7 @@ class MyPagerAdapter extends FragmentStatePagerAdapter {
         this.toolInfo = toolInfo;
         this.totalTime = totalTime;
         this.totalSteps = totalSteps;
-        this.toiletId = toiletId;
+        this.toiletIP = toiletIP;
         this.timestamp = timestamp;
     }
 
@@ -118,7 +118,7 @@ class MyPagerAdapter extends FragmentStatePagerAdapter {
         if (position == 0)
             return TitleFragment.newInstance(repairCode, repairTitle, toolInfo, totalTime, totalSteps);
         if (position == totalSteps+1)
-                return TestFragment.newInstance(errorCode, toiletId, timestamp);
+                return TestFragment.newInstance(errorCode, toiletIP, timestamp);
         else
             return TabFragment.newInstance(repairCode,position);
     }

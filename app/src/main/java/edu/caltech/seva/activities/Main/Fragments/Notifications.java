@@ -54,7 +54,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     private RecyclerAdapter adapter;
     private ArrayList<IncomingError> incomingErrors = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
-    private int tempId,tempPos, result;
+    private int idToDelete,posToDelete, result;
     private TextToSpeech mTTs;
     public ProgressBar progressBar;
     private Bundle mBundleRecyclerViewState;
@@ -77,7 +77,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         //sets up adapter, readErrorFromDb should get the notifications that have already been stored in the db
         adapter = new RecyclerAdapter(getContext(), incomingErrors);
         adapter.setClickListener(this);
-        adapter.setHasStableIds(true);
+//        adapter.setHasStableIds(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemViewCacheSize(4);
         recyclerView.setNestedScrollingEnabled(false);
@@ -127,7 +127,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                readErrorFromDb();
+                Loader load = new Loader();
+                load.execute();
+                adapter.filter(toilet_spinner.getSelectedItem().toString(),sort_spinner.getSelectedItemPosition());
             }
         };
 
@@ -162,8 +164,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     //will bring up the delete dialog to check if user actually wants to delete the notification item
     @Override
     public void declineClicked(View view, int position, int id) {
-        tempId = id;
-        tempPos = position;
+        idToDelete = id;
+        posToDelete = position;
+        Log.d("log", "id: "+ idToDelete + ", pos: " + posToDelete);
 
         //handles the dialog function
         DeleteDialog dialog = new DeleteDialog();
@@ -204,10 +207,14 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     public void deleteConfirmed() {
         DbHelper dbHelper = new DbHelper(getActivity());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        dbHelper.deleteErrorCodeId(tempId, database);
+        dbHelper.deleteErrorCodeId(idToDelete, database);
         dbHelper.close();
-        incomingErrors.remove(tempPos);
-        adapter.notifyDataSetChanged();
+        Loader load = new Loader();
+        load.execute();
+
+        //        adapter.deleteNotification(posToDelete);
+        adapter.notifyItemRemoved(posToDelete);
+//        adapter.filter(toilet_spinner.getSelectedItem().toString(),sort_spinner.getSelectedItemPosition());
         Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
     }
 
@@ -266,7 +273,6 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             adapter.notifyDataSetChanged();
             toilet_spinner.setEnabled(true);
             sort_spinner.setEnabled(true);
-//            toilet_spinner.setSelection(0);
             adapter.filter("All",0);
             progressBar.setVisibility(View.INVISIBLE);
         }
@@ -341,12 +347,5 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             cursor1.close();
         }
         dbHelper.close();
-
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                adapter.notifyDataSetChanged();
-//            }
-//        });
     }
 }
