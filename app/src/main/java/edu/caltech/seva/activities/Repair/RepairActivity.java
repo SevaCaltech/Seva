@@ -36,7 +36,6 @@ import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.models.RepairStep;
 
-//TODO: should receive error code and connect to correct repair guides
 public class RepairActivity extends AppCompatActivity {
 
     @Override

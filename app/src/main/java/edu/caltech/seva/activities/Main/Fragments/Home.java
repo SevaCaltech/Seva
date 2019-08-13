@@ -58,7 +58,6 @@ import edu.caltech.seva.models.UsersDO;
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
 
-//TODO: connect help button to email/phone?
 //the Home fragment that is the default starting page of the app which displays the user info
 public class Home extends Fragment {
     //utility helpers

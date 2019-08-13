@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -43,6 +45,10 @@ import edu.caltech.seva.models.IncomingError;
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.adapters.RecyclerAdapter;
 import edu.caltech.seva.activities.Repair.RepairActivity;
+import it.gmariotti.recyclerview.adapter.AlphaAnimatorAdapter;
+import it.gmariotti.recyclerview.adapter.ScaleInAnimatorAdapter;
+import it.gmariotti.recyclerview.itemanimator.ScaleInOutItemAnimator;
+import it.gmariotti.recyclerview.itemanimator.SlideInOutLeftItemAnimator;
 
 import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
 
@@ -57,10 +63,11 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     private int idToDelete,posToDelete, result;
     private TextToSpeech mTTs;
     public ProgressBar progressBar;
-    private Bundle mBundleRecyclerViewState;
+//    private Bundle mBundleRecyclerViewState;
     private PrefManager prefManager;
-    private final String KEY_RECYCLER_STATE = "recycler_state";
+//    private final String KEY_RECYCLER_STATE = "recycler_state";
     private Spinner toilet_spinner, sort_spinner;
+    public Animation animation;
 
     @Nullable
     @Override
@@ -77,16 +84,37 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         //sets up adapter, readErrorFromDb should get the notifications that have already been stored in the db
         adapter = new RecyclerAdapter(getContext(), incomingErrors);
         adapter.setClickListener(this);
-//        adapter.setHasStableIds(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemViewCacheSize(4);
         recyclerView.setNestedScrollingEnabled(false);
-        recyclerView.setAdapter(adapter);
+
+        //setup animation
+        ScaleInAnimatorAdapter animatorAdapter = new ScaleInAnimatorAdapter<>(adapter, recyclerView);
+        recyclerView.setAdapter(animatorAdapter);
+        animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                adapter.removeNotification(posToDelete, idToDelete);
+                Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
 
         //set up spinners
         prefManager = new PrefManager(getContext());
         List<String> saved_toilets = new ArrayList<>();
-        saved_toilets.addAll(prefManager.getToilets());
+        if (!prefManager.isGuest())
+            saved_toilets.addAll(prefManager.getToilets());
 
         List<CharSequence> toilet_options = new ArrayList<>();
         toilet_options.add("All");
@@ -143,11 +171,11 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(DbContract.UPDATE_UI_FILTER));
 
         //restore recycler viewstate
-        if(mBundleRecyclerViewState !=null){
-            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
-        }
-        adapter.notifyDataSetChanged();
+//        if(mBundleRecyclerViewState !=null){
+//            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
+//            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+//        }
+//        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -156,9 +184,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         getActivity().unregisterReceiver(broadcastReceiver);
 
         //save viewstate
-        mBundleRecyclerViewState = new Bundle();
-        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
-        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
+//        mBundleRecyclerViewState = new Bundle();
+//        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
+//        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
     }
 
     //will bring up the delete dialog to check if user actually wants to delete the notification item
@@ -209,13 +237,11 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.deleteErrorCodeId(idToDelete, database);
         dbHelper.close();
-        Loader load = new Loader();
-        load.execute();
+        recyclerView.findViewHolderForAdapterPosition(posToDelete).itemView.startAnimation(animation);
+//        getView().startAnimation(animation);
 
-        //        adapter.deleteNotification(posToDelete);
-        adapter.notifyItemRemoved(posToDelete);
-//        adapter.filter(toilet_spinner.getSelectedItem().toString(),sort_spinner.getSelectedItemPosition());
-        Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
+//        adapter.removeNotification(posToDelete, idToDelete);
+//        Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -273,6 +299,8 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             adapter.notifyDataSetChanged();
             toilet_spinner.setEnabled(true);
             sort_spinner.setEnabled(true);
+            toilet_spinner.setSelection(0);
+            sort_spinner.setSelection(0);
             adapter.filter("All",0);
             progressBar.setVisibility(View.INVISIBLE);
         }

@@ -34,7 +34,6 @@ import edu.caltech.seva.models.IncomingError;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
-    //TODO: the notifications should come from sms listener, maybe sqlite db
     private ArrayList<IncomingError> errorList, filtered;
     private ClickListener clickListener;
     private Context context;
@@ -103,6 +102,24 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             holder.gMap.clear();
             holder.gMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         }
+    }
+
+    public void removeNotification(int position, int id) {
+        int num = 0;
+        int pos = 0;
+        int pos_to_remove = -1;
+        filtered.remove(position);
+        for (IncomingError error : errorList) {
+            if (error.getId() == id) {
+                num++;
+                pos_to_remove = pos;
+            }
+            pos++;
+        }
+        Log.d("log","removed error id: " + id + " count: " + num);
+        if(pos_to_remove != -1)
+            errorList.remove(pos_to_remove);
+        notifyDataSetChanged();
     }
 
     public void filter(final String toilet_name, final int sort_method){

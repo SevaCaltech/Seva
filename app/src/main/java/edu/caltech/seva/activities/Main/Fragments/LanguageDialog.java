@@ -15,8 +15,6 @@ import android.widget.Toast;
 
 import edu.caltech.seva.R;
 
-//TODO: connect with some sort of translation API so strings aren't hardcoded
-
 //the language dialog which pops over the settings fragment and allows the user to select a language
 public class LanguageDialog extends DialogFragment {
 
