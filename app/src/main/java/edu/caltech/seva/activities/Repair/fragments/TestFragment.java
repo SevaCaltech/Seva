@@ -79,15 +79,17 @@ public class TestFragment extends Fragment {
         final String toiletIP = arguments.getString(TOILET_IP);
         final String timestamp = arguments.getString(TIMESTAMP);
 
-        AWSMobileClient.getInstance().initialize(getContext()).execute();
-        AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
-        AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
-        AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
-        dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
-        dynamoDBMapper = DynamoDBMapper.builder()
-                .dynamoDBClient(dynamoDBClient)
-                .awsConfiguration(configuration)
-                .build();
+        if(!prefManager.isGuest()){
+            AWSMobileClient.getInstance().initialize(getContext()).execute();
+            AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
+            AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
+            AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
+            dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+            dynamoDBMapper = DynamoDBMapper.builder()
+                    .dynamoDBClient(dynamoDBClient)
+                    .awsConfiguration(configuration)
+                    .build();
+        }
 
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +114,6 @@ public class TestFragment extends Fragment {
         dbHelper.deleteError(errorCode, toiletIP, database);
         dbHelper.close();
 
-        Log.d("log","isGuest:" + prefManager.isGuest());
         if(!prefManager.isGuest()) {
             new Thread(new Runnable() {
                 @Override

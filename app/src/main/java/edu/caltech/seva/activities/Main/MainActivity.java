@@ -1,7 +1,16 @@
 package edu.caltech.seva.activities.Main;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -14,44 +23,40 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobile.config.AWSConfiguration;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.github.ybq.android.spinkit.sprite.Sprite;
-import com.github.ybq.android.spinkit.style.Pulse;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.amazonaws.mobile.auth.core.IdentityManager;
 
 import edu.caltech.seva.R;
+import edu.caltech.seva.activities.Login.LoginActivity;
 import edu.caltech.seva.activities.Main.Fragments.Home;
 import edu.caltech.seva.activities.Main.Fragments.Notifications;
 import edu.caltech.seva.activities.Main.Fragments.Settings;
 import edu.caltech.seva.activities.Main.Fragments.Toilets;
-import edu.caltech.seva.models.UsersDO;
-
-import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread;
+import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.PrefManager;
 
 //This is the main activity for the app which contains the nav drawer and its fragments
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    protected boolean isConnected;
     FragmentTransaction fragmentTransaction;
     Toolbar toolbar;
     NavigationView navigationView;
+    PrefManager prefManager;
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateNetworkState();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefManager = new PrefManager(this);
 
         //sets up toolbar
         setContentView(R.layout.activity_main);
@@ -67,11 +72,6 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        //set up loading animation
-//        ProgressBar progressBar = (ProgressBar)findViewById(R.id.spin_kit);
-//        Sprite pulse = new Pulse();
-//        progressBar.setIndeterminateDrawable(pulse);
 
         //display home fragment first
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -152,8 +152,64 @@ public class MainActivity extends AppCompatActivity
     public Fragment getCurrentFragment() {
         return this.getSupportFragmentManager().findFragmentById(R.id.screen_area);
     }
+
+    public void logout(boolean launchGuest) {
+        IdentityManager.getDefaultIdentityManager().signOut();
+
+        if(launchGuest) {
+            prefManager.setIsGuest(true);
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        } else {
+            prefManager.clearPrefs();
+            DbHelper dbHelper = new DbHelper(this);
+            SQLiteDatabase database = dbHelper.getWritableDatabase();
+            dbHelper.clearNotifications(database);
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            dbHelper.close();
+        }
+        finish();
+    }
+
+    public void updateNetworkState() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        isConnected = (activeNetwork != null && activeNetwork.isConnected());
+        if (!isConnected && !prefManager.isGuest()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Network Connection Lost");
+            builder.setMessage("Logout or switch to Guest mode.");
+            builder.setPositiveButton("GUEST", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //logout then switch to guest mode
+                    logout(true);
+                    dialogInterface.cancel();
+                }
+            }).setNegativeButton("LOGOUT", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    logout(false);
+                    dialogInterface.cancel();
+                }
+            });
+            builder.show();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+        updateNetworkState();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 }

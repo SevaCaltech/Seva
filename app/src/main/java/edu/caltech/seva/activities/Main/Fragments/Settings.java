@@ -25,8 +25,6 @@ import edu.caltech.seva.helpers.PrefManager;
 //the settings fragment which the user can change language/audio settings
 public class Settings extends Fragment implements View.OnClickListener {
 
-    private PrefManager prefManager;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -40,7 +38,6 @@ public class Settings extends Fragment implements View.OnClickListener {
         audio.setOnClickListener(this);
         logout.setOnClickListener(this);
 
-        prefManager = new PrefManager(getContext());
         return rootView;
     }
 
@@ -56,16 +53,7 @@ public class Settings extends Fragment implements View.OnClickListener {
                 languageDialog.show(getFragmentManager(),"language_settings");
                 break;
             case R.id.logout:
-                prefManager.clearPrefs();
-                DbHelper dbHelper = new DbHelper(getContext());
-                SQLiteDatabase database = dbHelper.getWritableDatabase();
-                dbHelper.clearNotifications(database);
-                IdentityManager.getDefaultIdentityManager().signOut();
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                dbHelper.close();
-                getActivity().finish();
+                ((MainActivity)getActivity()).logout(false);
                 break;
         }
     }

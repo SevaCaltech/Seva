@@ -51,6 +51,7 @@ public class AWSLoginModel {
                     prefManager.setEmail(email);
                     prefManager.setUsername(userName);
                     prefManager.setUid(uid);
+                    prefManager.setIsGuest(false);
                     mCallback.onSignInSuccess();
                 }
 
