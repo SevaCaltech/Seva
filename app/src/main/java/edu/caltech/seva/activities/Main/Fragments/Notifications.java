@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,7 +34,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 public class Notifications extends Fragment implements RecyclerAdapter.ClickListener, DeleteDialog.DialogData, AdapterView.OnItemSelectedListener {
 
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeContainer;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerAdapter adapter;
     private ArrayList<IncomingError> incomingErrors = new ArrayList<>();
@@ -64,9 +66,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     private int idToDelete,posToDelete, result;
     private TextToSpeech mTTs;
     public ProgressBar progressBar;
-//    private Bundle mBundleRecyclerViewState;
     private PrefManager prefManager;
-//    private final String KEY_RECYCLER_STATE = "recycler_state";
     private Spinner toilet_spinner, sort_spinner;
     public Animation animation;
 
@@ -76,6 +76,21 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         View rootView = inflater.inflate(R.layout.activity_notifications, null);
         getActivity().setTitle("Notifications");
         progressBar = (ProgressBar) rootView.findViewById(R.id.notify_progress);
+
+        //sets up swiperefresh
+        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Loader refresh = new Loader();
+                refresh.execute();
+            }
+        });
+        Resources resources = getResources();
+        swipeContainer.setColorSchemeColors(resources.getColor(android.R.color.holo_blue_bright),
+                resources.getColor(android.R.color.holo_green_light),
+                resources.getColor(android.R.color.holo_orange_light),
+                resources.getColor(android.R.color.holo_red_light));
 
         //sets up the recycler list view
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
@@ -284,7 +299,8 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     public class Loader extends AsyncTask<Void, Void, String>{
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            swipeContainer.setRefreshing(true);
+//            progressBar.setVisibility(View.VISIBLE);
             toilet_spinner.setEnabled(false);
             sort_spinner.setEnabled(false);
         }
@@ -303,7 +319,8 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             toilet_spinner.setSelection(0);
             sort_spinner.setSelection(0);
             adapter.filter("All",0);
-            progressBar.setVisibility(View.INVISIBLE);
+//            progressBar.setVisibility(View.INVISIBLE);
+            swipeContainer.setRefreshing(false);
         }
     }
 

@@ -200,11 +200,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         notifyDataSetChanged();
     }
 
-//    public void updateErrorList(ArrayList<IncomingError> errorList){
-//        this.errorList.clear();
-//        this.errorList.addAll(errorList);
-//        notifyDataSetChanged();
-//    }
+    public void addAll(ArrayList<IncomingError> list){
+        errorList.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void clear() {
+        errorList.clear();
+        notifyDataSetChanged();
+    }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, OnMapReadyCallback {
         private TextView notifyText;
