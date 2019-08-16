@@ -15,8 +15,11 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +62,7 @@ import static com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiTh
 
 
 //the Home fragment that is the default starting page of the app which displays the user info
-public class Home extends Fragment {
+public class Home extends Fragment implements View.OnClickListener{
     //utility helpers
     private PrefManager prefManager;
     private BroadcastReceiver broadcastReceiver;
@@ -76,6 +79,7 @@ public class Home extends Fragment {
     private TextView displayName, subtext, numNotifications, numToilets;
     private Button helpButton;
     private static String name, uid, email;
+    private CardView toiletCard, notificationCard;
 
 
     @Nullable
@@ -88,6 +92,8 @@ public class Home extends Fragment {
         numNotifications = (TextView) rootView.findViewById(R.id.numNotifications);
         numToilets = (TextView) rootView.findViewById(R.id.numToilets);
         progressBar = (ProgressBar) rootView.findViewById(R.id.spin_kit);
+        toiletCard = (CardView) rootView.findViewById(R.id.toilet_card);
+        notificationCard = (CardView) rootView.findViewById(R.id.notification_card);
 
         prefManager = new PrefManager(getContext());
         uid = prefManager.getUid();
@@ -135,12 +141,9 @@ public class Home extends Fragment {
         }
 
         getActivity().setTitle("Home");
-        helpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity(), "Help Clicked..", Toast.LENGTH_SHORT).show();
-            }
-        });
+        helpButton.setOnClickListener(this);
+        toiletCard.setOnClickListener(this);
+        notificationCard.setOnClickListener(this);
 
         loadNotifications();
 
@@ -190,6 +193,32 @@ public class Home extends Fragment {
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    @Override
+    public void onClick(View view) {
+        Fragment fragment = null;
+        switch (view.getId()){
+            case R.id.toilet_card:
+                //launch mytoilets fragment
+                fragment = new Toilets();
+                break;
+            case R.id.notification_card:
+                //launch notifications fragment
+                fragment = new Notifications();
+                break;
+            case R.id.helpButton:
+                Toast.makeText(getActivity(), "Help Clicked..", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        if (fragment != null) {
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.replace(R.id.screen_area, fragment);
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
 
     private class initialSync extends AsyncTask<Void, String, String> {

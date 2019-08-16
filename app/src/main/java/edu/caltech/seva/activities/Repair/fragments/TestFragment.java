@@ -167,12 +167,16 @@ public class TestFragment extends Fragment {
             } catch (LambdaFunctionException e) {
                 Log.d("log", "Failed to invoke test lambda", e);
                 return null;
+            } catch (RuntimeException e) {
+                Log.d("log", "Took too long to connect to lambda", e);
+                return null;
             }
         }
 
         @Override
         protected void onPostExecute(JsonObject result) {
             if (result == null) {
+                Toast.makeText(getContext(), "Unable to connect to toilet..", Toast.LENGTH_LONG).show();
                 return;
             }
             String message = result.get("msg").toString().replaceAll("\"","");

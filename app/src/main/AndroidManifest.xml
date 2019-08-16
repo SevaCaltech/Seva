@@ -14,7 +14,7 @@
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/icon_seva_logo"
+        android:roundIcon="@drawable/icon_seva_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 

@@ -180,24 +180,6 @@ public class MainActivity extends AppCompatActivity
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         isConnected = (activeNetwork != null && activeNetwork.isConnected());
         if (!isConnected && !prefManager.isGuest()) {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setTitle("Network Connection Lost");
-//            builder.setMessage("Logout or switch to Guest mode.");
-//            builder.setPositiveButton("GUEST", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialogInterface, int i) {
-//                    //logout then switch to guest mode
-//                    logout(true);
-//                    dialogInterface.cancel();
-//                }
-//            }).setNegativeButton("LOGOUT", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialogInterface, int i) {
-//                    logout(false);
-//                    dialogInterface.cancel();
-//                }
-//            });
-//            builder.show();
             Toast.makeText(this,"No Network Connection..", Toast.LENGTH_LONG).show();
         }
     }
