@@ -254,10 +254,6 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         dbHelper.deleteErrorCodeId(idToDelete, database);
         dbHelper.close();
         recyclerView.findViewHolderForAdapterPosition(posToDelete).itemView.startAnimation(animation);
-//        getView().startAnimation(animation);
-
-//        adapter.removeNotification(posToDelete, idToDelete);
-//        Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
     }
 
     @Override

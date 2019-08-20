@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
@@ -101,6 +102,11 @@ public class DbHelper extends SQLiteAssetHelper{
     public void deleteError(String errorCode, String toiletIP, SQLiteDatabase database){
         String selection = DbContract.ERROR_CODE + "  = '" + errorCode + "' AND " + DbContract.TOILET_IP + " = '" + toiletIP + "'";
         database.delete(DbContract.NOTIFY_TABLE,selection,null);
+   }
+
+   public int readNumToiletErrors(String toiletIP, SQLiteDatabase database) {
+        String selection = DbContract.TOILET_IP + " = '" + toiletIP + "'";
+        return ((int)DatabaseUtils.queryNumEntries(database,DbContract.NOTIFY_TABLE, selection));
    }
 
    public void clearNotifications(SQLiteDatabase database){

@@ -12,7 +12,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/toilet_info"
         android:layout_margin="20dp"
+        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:elevation="10dp"
         android:background="@drawable/map_overlay">
@@ -49,13 +51,14 @@
             android:textStyle="bold" />
 
         <View
+            android:id="@+id/toilet_status_circle"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_toEndOf="@+id/toilet_status_text"
             android:layout_below="@+id/toilet_description"
             android:layout_marginTop="27dp"
             android:layout_marginStart="10dp"
-            android:background="@drawable/status_circle">
+            android:background="@drawable/status_circle_healthy">
         </View>
 
         <TextView

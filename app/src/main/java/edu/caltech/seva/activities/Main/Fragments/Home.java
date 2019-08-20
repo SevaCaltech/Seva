@@ -69,6 +69,7 @@ public class Home extends Fragment implements View.OnClickListener{
     DynamoDBMapper dynamoDBMapper;
     private final String CHANNEL_ID = "seva_notification";
     private final int NOTIFICATION_ID = 1;
+    InitialSync sync = new InitialSync();
 
     //data objects
     private UsersDO user = new UsersDO();
@@ -120,7 +121,6 @@ public class Home extends Fragment implements View.OnClickListener{
                     .dynamoDBClient(dynamoDBClient)
                     .awsConfiguration(configuration)
                     .build();
-            initialSync sync = new initialSync();
             sync.execute();
         }
         else {
@@ -162,6 +162,10 @@ public class Home extends Fragment implements View.OnClickListener{
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(DbContract.UPDATE_UI_FILTER));
+        if(sync.getStatus() == AsyncTask.Status.RUNNING) {
+            Log.d("log","onResume initialsync running...");
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -221,7 +225,7 @@ public class Home extends Fragment implements View.OnClickListener{
         }
     }
 
-    private class initialSync extends AsyncTask<Void, String, String> {
+    private class InitialSync extends AsyncTask<Void, String, String> {
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
