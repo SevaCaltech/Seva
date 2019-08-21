@@ -24,7 +24,7 @@
             android:textSize="17sp"
             android:textColor="@color/primary_text"
             android:padding="20dp"
-            android:text="Display language"/>
+            android:text="@string/language_option_text"/>
 
     </LinearLayout>
 
@@ -46,7 +46,7 @@
             android:textSize="17sp"
             android:textColor="@color/primary_text"
             android:padding="20dp"
-            android:text="Audio settings"/>
+            android:text="@string/audio_option_text"/>
 
     </LinearLayout>
 
@@ -68,7 +68,7 @@
             android:textSize="17sp"
             android:textColor="@color/primary_text"
             android:padding="20dp"
-            android:text="Logout"/>
+            android:text="@string/logout_option_text"/>
 
     </LinearLayout>
 

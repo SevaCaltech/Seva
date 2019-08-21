@@ -22,33 +22,33 @@
         <ImageView
             android:layout_width="32.24dp"
             android:layout_height="36.64dp"
-            android:layout_marginLeft="15.02dp"
+            android:layout_marginStart="15.02dp"
             android:src="@drawable/fill_3" />
 
         <ImageView
             android:layout_width="20.16dp"
             android:layout_height="36.88dp"
-            android:layout_marginLeft="15.01dp"
+            android:layout_marginStart="15.01dp"
             android:src="@drawable/fill_5" />
 
         <ImageView
             android:layout_width="12.86dp"
             android:layout_height="30.48dp"
-            android:layout_marginLeft=".53dp"
+            android:layout_marginStart=".53dp"
             android:layout_marginBottom="3.7dp"
             android:src="@drawable/fill_7" />
 
         <ImageView
             android:layout_width="31.55dp"
             android:layout_height="37.88dp"
-            android:layout_marginLeft="15.01dp"
+            android:layout_marginStart="15.01dp"
             android:src="@drawable/fill_9" />
         
     </LinearLayout>
     
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center_horizontal"
@@ -60,9 +60,10 @@
             android:layout_height="32.5dp"
             android:layout_marginTop="44.5dp"
             android:background="@color/icons"
-            android:hint="username"
+            android:hint="@string/username_hint"
             android:inputType="textEmailAddress"
-            android:paddingLeft="10.5dp"
+            android:paddingStart="10.5dp"
+            android:paddingEnd="10.5dp"
             android:textSize="14sp"
             android:textColorHint="@color/secondary_text"/>
 
@@ -72,8 +73,9 @@
             android:layout_height="32.5dp"
             android:layout_marginTop="23.5dp"
             android:background="@color/icons"
-            android:hint="password"
-            android:paddingLeft="10.5dp"
+            android:hint="@string/password_hint"
+            android:paddingStart="10.5dp"
+            android:paddingEnd="10.5dp"
             android:textSize="14sp"
             android:inputType="textPassword"
             android:textColorHint="@color/secondary_text"/>
@@ -89,7 +91,7 @@
                 android:id="@+id/loginGuestButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GUEST"
+                android:text="@string/guest_button_text"
                 android:background="@color/accent"
                 android:textColor="@color/icons"
                 android:elevation="10dp"
@@ -103,8 +105,8 @@
                 android:id="@+id/loginButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="50dp"
-                android:text="login"
+                android:layout_marginStart="50dp"
+                android:text="@string/login_button_text"
                 android:background="@color/accent"
                 android:textColor="@color/icons"
                 android:elevation="10dp"

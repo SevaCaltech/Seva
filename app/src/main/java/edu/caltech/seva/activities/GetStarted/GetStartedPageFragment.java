@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import edu.caltech.seva.R;
 
 public class GetStartedPageFragment extends Fragment implements View.OnClickListener{
@@ -25,6 +27,9 @@ public class GetStartedPageFragment extends Fragment implements View.OnClickList
     private String titleStr = "Welcome to the Seva app!";
     private TextView[] dots;
     private LinearLayout dotsLayout;
+    private Button login;
+    private TextView description, desc_noTitle, title;
+    private ImageView getStartedPic;
 
 
     public GetStartedPageFragment() {
@@ -43,17 +48,24 @@ public class GetStartedPageFragment extends Fragment implements View.OnClickList
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.get_started_page1, container, false);
         Bundle arguments = getArguments();
-        int position = arguments.getInt(POSITION);
 
-        Button login = (Button) rootView.findViewById(R.id.ok_login);
-        TextView description = (TextView) rootView.findViewById(R.id.get_started_description);
-        TextView desc_noTitle = (TextView) rootView.findViewById(R.id.get_started_desc_no_title);
-        TextView title = (TextView) rootView.findViewById(R.id.get_started_title);
-        ImageView getStartedPic = (ImageView) rootView.findViewById(R.id.get_started_pic);
+        login = (Button) rootView.findViewById(R.id.ok_login);
+        description = (TextView) rootView.findViewById(R.id.get_started_description);
+        desc_noTitle = (TextView) rootView.findViewById(R.id.get_started_desc_no_title);
+        title = (TextView) rootView.findViewById(R.id.get_started_title);
+        getStartedPic = (ImageView) rootView.findViewById(R.id.get_started_pic);
         dotsLayout = (LinearLayout) rootView.findViewById(R.id.layoutDots);
-        addBottomDots(position-1);
         login.setVisibility(View.GONE);
         login.setOnClickListener(this);
+
+        int position = arguments.getInt(POSITION);
+        populateUI(position);
+
+        return rootView;
+    }
+
+    public void populateUI(int position){
+        addBottomDots(position-1);
 
         if (position == 1) {
             title.setText(titleStr);
@@ -68,11 +80,11 @@ public class GetStartedPageFragment extends Fragment implements View.OnClickList
 
         if (position == 3)
             login.setVisibility(View.VISIBLE);
+
         description.setText(descriptionArr[position-1]);
         desc_noTitle.setText(descriptionArr[position-1]);
         int picID = getResources().getIdentifier(picArr[position-1], "drawable", getActivity().getPackageName());
         getStartedPic.setImageResource(picID);
-        return rootView;
     }
 
     public void addBottomDots(int currentPage) {

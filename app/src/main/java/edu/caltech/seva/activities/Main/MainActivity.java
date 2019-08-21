@@ -41,11 +41,16 @@ import edu.caltech.seva.helpers.PrefManager;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    protected boolean isConnected;
+    public boolean isConnected;
     FragmentTransaction fragmentTransaction;
+    String currentFragmentTag;
     Toolbar toolbar;
     NavigationView navigationView;
     PrefManager prefManager;
+    String[] PERMISSIONS = {
+            Manifest.permission.READ_SMS,
+            Manifest.permission.CALL_PHONE
+    };
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.add(R.id.screen_area, new Home());
         fragmentTransaction.commit();
         navigationView.setCheckedItem(R.id.nav_home);
+        currentFragmentTag = "HOME";
 
         //handle backstack nav highlighting
         this.getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -97,8 +103,9 @@ public class MainActivity extends AppCompatActivity
         });
 
         //check app permissions
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, 0);
+        for (String permission: PERMISSIONS){
+            if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{permission},0);
         }
     }
 
@@ -119,28 +126,34 @@ public class MainActivity extends AppCompatActivity
 
         // Handle navigation view item clicks here.
         Fragment fragment = null;
+        String fragment_tag = "";
         switch (item.getItemId()) {
             case R.id.nav_home:
                 fragment = new Home();
+                fragment_tag = "HOME";
                 break;
 
             case R.id.nav_toilets:
                 fragment = new Toilets();
+                fragment_tag = "TOILETS";
                 break;
 
             case R.id.nav_notifications:
                 fragment = new Notifications();
+                fragment_tag = "NOTIFICATIONS";
                 break;
 
             case R.id.nav_settings:
                 fragment = new Settings();
+                fragment_tag = "SETTINGS";
                 break;
         }
 
-        if (fragment != null) {
+        if (fragment != null && !fragment_tag.equals(currentFragmentTag)) {
+            currentFragmentTag = fragment_tag;
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.screen_area, fragment);
+            ft.replace(R.id.screen_area, fragment, fragment_tag);
             ft.addToBackStack(null);
             ft.commit();
         }

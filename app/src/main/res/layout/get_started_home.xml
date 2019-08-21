@@ -21,26 +21,26 @@ android:background="@color/colorPrimary">
         <ImageView
             android:layout_width="32.24dp"
             android:layout_height="36.64dp"
-            android:layout_marginLeft="15.02dp"
+            android:layout_marginStart="15.02dp"
             android:src="@drawable/fill_3" />
 
         <ImageView
             android:layout_width="20.16dp"
             android:layout_height="36.88dp"
-            android:layout_marginLeft="15.01dp"
+            android:layout_marginStart="15.01dp"
             android:src="@drawable/fill_5" />
 
         <ImageView
             android:layout_width="12.86dp"
             android:layout_height="30.48dp"
-            android:layout_marginLeft=".53dp"
+            android:layout_marginStart=".53dp"
             android:layout_marginBottom="3.7dp"
             android:src="@drawable/fill_7" />
 
         <ImageView
             android:layout_width="31.55dp"
             android:layout_height="37.88dp"
-            android:layout_marginLeft="15.01dp"
+            android:layout_marginStart="15.01dp"
             android:src="@drawable/fill_9" />
 
     </LinearLayout>
@@ -59,7 +59,7 @@ android:background="@color/colorPrimary">
         android:layout_marginTop="153dp"
         android:width="234dp"
         android:layout_centerHorizontal="true"
-        android:text="Connecting users to sanitation service."/>
+        android:text="@string/blurb_text"/>
 
     <Button
         android:id="@+id/get_started_button"
@@ -69,7 +69,7 @@ android:background="@color/colorPrimary">
         android:width="239dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="29dp"
-        android:text="Get Started"
+        android:text="@string/getstarted_button_text"
         android:textColor="@android:color/white"
         android:backgroundTint="@color/accent"/>
 
@@ -82,7 +82,7 @@ android:background="@color/colorPrimary">
         android:width="238dp"
         android:layout_marginTop="24dp"
         android:layout_centerHorizontal="true"
-        android:text="Log In"
+        android:text="@string/login_button_text"
         android:background="@drawable/login_button"
         android:textColor="@android:color/white"
         />

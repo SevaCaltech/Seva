@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/secondary_text"
         android:textSize="17sp"
-        android:text="Are you sure you want to delete this item?"
+        android:text="@string/delete_dialog_text"
         android:padding="25dp"/>
 
 </LinearLayout>

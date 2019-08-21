@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -107,7 +108,6 @@ public class Home extends Fragment implements View.OnClickListener{
         numNotifications.setText("0");
 
         if( prefManager.isFirstTimeLaunch() && !prefManager.isGuest()) {
-            prefManager.setFirstTimeLaunch(false);
             progressBar.setVisibility(View.VISIBLE);
 
             //initialize dynamodb
@@ -162,10 +162,6 @@ public class Home extends Fragment implements View.OnClickListener{
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(DbContract.UPDATE_UI_FILTER));
-        if(sync.getStatus() == AsyncTask.Status.RUNNING) {
-            Log.d("log","onResume initialsync running...");
-            progressBar.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override
@@ -212,7 +208,11 @@ public class Home extends Fragment implements View.OnClickListener{
                 fragment = new Notifications();
                 break;
             case R.id.helpButton:
-                Toast.makeText(getActivity(), "Help Clicked..", Toast.LENGTH_SHORT).show();
+                final String helpNumber = "555-555-5555";
+//                Toast.makeText(getActivity(), "Help Clicked..", Toast.LENGTH_SHORT).show();
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + helpNumber));
+                startActivity(callIntent);
                 break;
         }
 
@@ -287,6 +287,7 @@ public class Home extends Fragment implements View.OnClickListener{
 
         @Override
         protected void onPostExecute(String s) {
+            prefManager.setFirstTimeLaunch(false);
             progressBar.setVisibility(View.INVISIBLE);
         }
     }

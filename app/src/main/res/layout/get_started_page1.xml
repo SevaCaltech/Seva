@@ -7,9 +7,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to the Seva App!"
+        android:text="@string/getstarted_title_text"
         android:layout_marginTop="96dp"
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:layout_centerHorizontal="true"
         android:id="@+id/get_started_title"
         android:textColor="@color/text_dark"
@@ -19,7 +19,7 @@
         android:layout_width="232dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"
-        android:text="1. Our sensors tell technicians somthing is wrong."
+        android:text=""
         android:layout_marginTop="125dp"
         android:textSize="16sp"
         android:layout_centerHorizontal="true"
@@ -31,7 +31,7 @@
         android:layout_width="232dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content"
-        android:text="1. Our sensors tell technicians somthing is wrong."
+        android:text=""
         android:layout_marginTop="96dp"
         android:textSize="16sp"
         android:layout_centerHorizontal="true"
@@ -55,7 +55,7 @@
         android:width="239dp"
         android:layout_centerInParent="true"
         android:layout_above="@+id/layoutDots"
-        android:text="Ok, login!"
+        android:text="@string/oklogin_button_text"
         android:textColor="@android:color/white"
         android:backgroundTint="@color/accent"/>
 
@@ -69,7 +69,5 @@
         android:orientation="horizontal">
 
     </LinearLayout>
-
-
 
 </RelativeLayout>

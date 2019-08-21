@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.config.AWSConfiguration;
@@ -42,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import edu.caltech.seva.R;
+import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
@@ -106,18 +108,22 @@ public class Toilets extends Fragment {
         dbHelper.close();
 
         //get toilet status info async
-        AWSMobileClient.getInstance().initialize(getContext()).execute();
-        AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
-        AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
-        AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
-        dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
-        dynamoDBMapper = DynamoDBMapper.builder()
-                .dynamoDBClient(dynamoDBClient)
-                .awsConfiguration(configuration)
-                .build();
+        if(((MainActivity)getActivity()).isConnected) {
+            AWSMobileClient.getInstance().initialize(getContext()).execute();
+            AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
+            AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
+            AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
+            dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+            dynamoDBMapper = DynamoDBMapper.builder()
+                    .dynamoDBClient(dynamoDBClient)
+                    .awsConfiguration(configuration)
+                    .build();
 
-        CheckStatus checkstatus = new CheckStatus() ;
-        checkstatus.execute();
+            CheckStatus checkstatus = new CheckStatus();
+            checkstatus.execute();
+        }
+        else
+            statusCheckDone = true;
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -167,22 +173,29 @@ public class Toilets extends Fragment {
                             View statusCircle = (View) infoCard.findViewById(R.id.toilet_status_circle);
 
                             SimpleDateFormat formatter = new SimpleDateFormat("HH:mm z MM/dd/yyyy");
-                            String timestamp = "Last Sync " + formatter.format(toilet.getSyncTimestamp());
+                            String timestamp = "Last Sync ";
+                            if(toilet.getSyncTimestamp() == null)
+                                timestamp = "No connection..";
+                            else
+                              timestamp += formatter.format(toilet.getSyncTimestamp());
                             title.setText(toilet.getToiletName());
                             description.setText(toilet.getDescription());
                             syncTimestamp.setText(timestamp);
 
-                            switch (toilet.getStatus()){
-                                case ERROR:
-                                    statusCircle.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.status_circle_error));
-                                    break;
-                                case HEALTHY:
-                                    statusCircle.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.status_circle_healthy));
-                                    break;
-                                case DISABLED:
-                                    statusCircle.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.status_circle_disabled));
-                                    break;
-                            }
+                            if(toilet.getStatus() != null) {
+                                switch (toilet.getStatus()) {
+                                    case ERROR:
+                                        statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_error));
+                                        break;
+                                    case HEALTHY:
+                                        statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_healthy));
+                                        break;
+                                    case DISABLED:
+                                        statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_disabled));
+                                        break;
+                                }
+                            } else
+                                statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_empty));
                             infoCard.startAnimation(up_animation);
                             infoCard.setVisibility(View.VISIBLE);
                             prevMarker = marker;
