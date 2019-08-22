@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.caltech.seva.R;
+import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.helpers.AWSLoginModel;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
@@ -145,13 +146,13 @@ public class Home extends Fragment implements View.OnClickListener{
         toiletCard.setOnClickListener(this);
         notificationCard.setOnClickListener(this);
 
-        loadNotifications();
+        loadNumNotifications();
 
         //connects to the ReceiverSMS class that listens for sms notifications from a specific number
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                loadNotifications();
+                loadNumNotifications();
                 displayNotification();
             }
         };
@@ -170,7 +171,7 @@ public class Home extends Fragment implements View.OnClickListener{
         getActivity().unregisterReceiver(broadcastReceiver);
     }
 
-    private void loadNotifications() {
+    private void loadNumNotifications() {
         DbHelper dbHelper = new DbHelper(getContext());
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         int count = (int) DatabaseUtils.queryNumEntries(database, DbContract.NOTIFY_TABLE);
@@ -198,18 +199,20 @@ public class Home extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         Fragment fragment = null;
+        String fragment_tag= "";
         switch (view.getId()){
             case R.id.toilet_card:
                 //launch mytoilets fragment
                 fragment = new Toilets();
+                fragment_tag = "TOILETS";
                 break;
             case R.id.notification_card:
                 //launch notifications fragment
                 fragment = new Notifications();
+                fragment_tag = "NOTIFICATIONS";
                 break;
             case R.id.helpButton:
                 final String helpNumber = "555-555-5555";
-//                Toast.makeText(getActivity(), "Help Clicked..", Toast.LENGTH_SHORT).show();
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
                 callIntent.setData(Uri.parse("tel:" + helpNumber));
                 startActivity(callIntent);
@@ -219,9 +222,10 @@ public class Home extends Fragment implements View.OnClickListener{
         if (fragment != null) {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.screen_area, fragment);
+            ft.replace(R.id.screen_area, fragment, fragment_tag);
             ft.addToBackStack(null);
             ft.commit();
+            ((MainActivity)getActivity()).currentFragmentTag = fragment_tag;
         }
     }
 
@@ -233,6 +237,26 @@ public class Home extends Fragment implements View.OnClickListener{
 
         @Override
         protected String doInBackground(Void... voids) {
+            loadUserInfo();
+            loadErrorInfo();
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            Log.d("log", values[0] + ": " +  values[1] + " errors.");
+            Log.d("log", "total: " + values[2]);
+            numNotifications.setText(values[2]);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            prefManager.setFirstTimeLaunch(false);
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        public void loadUserInfo(){
             user = dynamoDBMapper.load(UsersDO.class, uid);
             name = user.getDisplayName();
             email = user.getEmail();
@@ -260,9 +284,12 @@ public class Home extends Fragment implements View.OnClickListener{
                     subtext.setText(email);
                 }
             });
+        }
+
+        public void loadErrorInfo(){
+            int total = 0;
 
             //get all errors for assigned toilets and store in local db
-            int total = 0;
             for(String toilet:toilets) {
                 int numErrors;
                 DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
@@ -275,20 +302,6 @@ public class Home extends Fragment implements View.OnClickListener{
                 total += numErrors;
                 publishProgress(toilet, Integer.toString(numErrors), Integer.toString(total));
             }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            Log.d("log", values[0] + ": " +  values[1] + " errors.");
-            Log.d("log", "total: " + values[2]);
-            numNotifications.setText(values[2]);
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            prefManager.setFirstTimeLaunch(false);
-            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 }

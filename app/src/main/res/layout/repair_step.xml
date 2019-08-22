@@ -41,8 +41,7 @@
         android:layout_height="60dp"
         android:layout_below="@+id/stepText"
         android:layout_marginTop="-120dp"
-        android:layout_marginStart="16dp"
-        app:srcCompat="@drawable/group" />
+        android:layout_marginStart="16dp" />
 
     <TextView
         android:id="@+id/stepInfo"

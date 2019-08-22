@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
 
     public boolean isConnected;
     FragmentTransaction fragmentTransaction;
-    String currentFragmentTag;
+    public String currentFragmentTag;
     Toolbar toolbar;
     NavigationView navigationView;
     PrefManager prefManager;
@@ -102,11 +102,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //check app permissions
-        for (String permission: PERMISSIONS){
-            if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED)
-                ActivityCompat.requestPermissions(this, new String[]{permission},0);
-        }
+        checkAppPermissions();
     }
 
     //if the back button is pressed and the drawer is open it will close
@@ -165,6 +161,13 @@ public class MainActivity extends AppCompatActivity
 
     public Fragment getCurrentFragment() {
         return this.getSupportFragmentManager().findFragmentById(R.id.screen_area);
+    }
+
+    public void checkAppPermissions(){
+        for (String permission: PERMISSIONS){
+            if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{permission},0);
+        }
     }
 
     public void logout(boolean launchGuest) {

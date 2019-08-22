@@ -115,6 +115,5 @@ public class TabFragment extends Fragment {
             cursor.close();
             dbHelper.close();
         }
-
     }
 }

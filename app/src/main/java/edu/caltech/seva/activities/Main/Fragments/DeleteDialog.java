@@ -43,7 +43,6 @@ public class DeleteDialog extends DialogFragment {
             }
         });
 
-
         return builder.create();
     }
 
@@ -53,8 +52,6 @@ public class DeleteDialog extends DialogFragment {
         data = (DialogData)getTargetFragment();
         super.onAttach(context);
     }
-
-
 
     //interface that allows the Parent Fragment to access the state of the delete button
     public interface DialogData{

@@ -34,12 +34,24 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
@@ -47,6 +59,7 @@ import edu.caltech.seva.models.IncomingError;
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.adapters.RecyclerAdapter;
 import edu.caltech.seva.activities.Repair.RepairActivity;
+import edu.caltech.seva.models.ToiletsDO;
 import it.gmariotti.recyclerview.adapter.AlphaAnimatorAdapter;
 import it.gmariotti.recyclerview.adapter.ScaleInAnimatorAdapter;
 import it.gmariotti.recyclerview.itemanimator.ScaleInOutItemAnimator;
@@ -62,6 +75,8 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerAdapter adapter;
     private ArrayList<IncomingError> incomingErrors = new ArrayList<>();
+    List<String> saved_toilets = new ArrayList<>();
+    DynamoDBMapper dynamoDBMapper;
     private BroadcastReceiver broadcastReceiver;
     private int idToDelete,posToDelete, result;
     private TextToSpeech mTTs;
@@ -76,6 +91,7 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         View rootView = inflater.inflate(R.layout.activity_notifications, null);
         getActivity().setTitle("Notifications");
         progressBar = (ProgressBar) rootView.findViewById(R.id.notify_progress);
+        prefManager = new PrefManager(getContext());
 
         //sets up swiperefresh
         swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
@@ -103,66 +119,26 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemViewCacheSize(4);
         recyclerView.setNestedScrollingEnabled(false);
-
-        //setup animation
-        ScaleInAnimatorAdapter animatorAdapter = new ScaleInAnimatorAdapter<>(adapter, recyclerView);
-        recyclerView.setAdapter(animatorAdapter);
-        animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                adapter.removeNotification(posToDelete, idToDelete);
-                Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        setupAnimationAdapter();
 
         //set up spinners
-        prefManager = new PrefManager(getContext());
-        List<String> saved_toilets = new ArrayList<>();
-        if (!prefManager.isGuest())
-            saved_toilets.addAll(prefManager.getToilets());
-
-        List<CharSequence> toilet_options = new ArrayList<>();
-        toilet_options.add("All");
-
-        DbHelper dbHelper = new DbHelper(getContext());
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        for(int i=0;i<saved_toilets.size();i++) {
-            Cursor cursor = dbHelper.readToiletInfo(database, saved_toilets.get(i));
-            String toiletName;
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                toiletName = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_NAME));
-                toilet_options.add(toiletName);
-            }
-        }
-        dbHelper.close();
-
         toilet_spinner = (Spinner) rootView.findViewById(R.id.toilet_spinner);
         sort_spinner = (Spinner) rootView.findViewById(R.id.sort_spinner);
-        ArrayAdapter<CharSequence> sort_adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.sort_types, R.layout.spinner_item_main);
-        ArrayAdapter<CharSequence> toilet_adapter = new ArrayAdapter<>(
-                getContext(),
-                R.layout.spinner_item_main,
-                toilet_options
-        );
-        sort_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        toilet_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sort_spinner.setAdapter(sort_adapter);
-        toilet_spinner.setAdapter(toilet_adapter);
-        sort_spinner.setOnItemSelectedListener(this);
-        toilet_spinner.setOnItemSelectedListener(this);
+        setupFilterSpinners();
+
+        //setup dynamomapper
+        if (!prefManager.isGuest() && ((MainActivity)getActivity()).isConnected){
+            Log.d("log", "Initializing AWS...");
+            AWSMobileClient.getInstance().initialize(getContext()).execute();
+            AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
+            AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
+            AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
+            dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+            dynamoDBMapper = DynamoDBMapper.builder()
+                    .dynamoDBClient(dynamoDBClient)
+                    .awsConfiguration(configuration)
+                    .build();
+        }
 
         Loader load = new Loader();
         load.execute();
@@ -180,29 +156,73 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         return rootView;
     }
 
+    public void setupAnimationAdapter() {
+        ScaleInAnimatorAdapter animatorAdapter = new ScaleInAnimatorAdapter<>(adapter, recyclerView);
+        recyclerView.setAdapter(animatorAdapter);
+        animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                adapter.removeNotification(posToDelete, idToDelete);
+                Toast.makeText(getActivity(), "Notification Removed Successfully..", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+    }
+
+    public void setupFilterSpinners() {
+        if (!prefManager.isGuest() && saved_toilets.size() == 0)
+            saved_toilets.addAll(prefManager.getToilets());
+
+        List<CharSequence> toilet_options = new ArrayList<>();
+        toilet_options.add("All");
+
+        //get names of toilets in localdb
+        DbHelper dbHelper = new DbHelper(getContext());
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        for(int i=0;i<saved_toilets.size();i++) {
+            Cursor cursor = dbHelper.readToiletInfo(database, saved_toilets.get(i));
+            String toiletName;
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                toiletName = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_NAME));
+                toilet_options.add(toiletName);
+            }
+        }
+        dbHelper.close();
+
+        //add names to spinner
+        ArrayAdapter<CharSequence> sort_adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.sort_types, R.layout.spinner_item_main);
+        ArrayAdapter<CharSequence> toilet_adapter = new ArrayAdapter<>(
+                getContext(),
+                R.layout.spinner_item_main,
+                toilet_options
+        );
+        sort_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        toilet_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sort_spinner.setAdapter(sort_adapter);
+        toilet_spinner.setAdapter(toilet_adapter);
+        sort_spinner.setOnItemSelectedListener(this);
+        toilet_spinner.setOnItemSelectedListener(this);
+    }
+
     //will autoupdate the list when a new sms is received
     @Override
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(DbContract.UPDATE_UI_FILTER));
-
-        //restore recycler viewstate
-//        if(mBundleRecyclerViewState !=null){
-//            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-//            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
-//        }
-//        adapter.notifyDataSetChanged();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         getActivity().unregisterReceiver(broadcastReceiver);
-
-        //save viewstate
-//        mBundleRecyclerViewState = new Bundle();
-//        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
-//        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
     }
 
     //will bring up the delete dialog to check if user actually wants to delete the notification item
@@ -268,7 +288,6 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
                 if(result==TextToSpeech.LANG_NOT_SUPPORTED ||result== TextToSpeech.LANG_MISSING_DATA)
                     Toast.makeText(getActivity(), "Feature not supported in your device..",Toast.LENGTH_SHORT).show();
                 else
-                //    speak(errorCode);
                     mTTs.speak(errorCode, TextToSpeech.QUEUE_FLUSH, null);
             }
         });
@@ -289,20 +308,27 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-    }
+    public void onNothingSelected(AdapterView<?> adapterView) {}
 
     public class Loader extends AsyncTask<Void, Void, String>{
         @Override
         protected void onPreExecute() {
             swipeContainer.setRefreshing(true);
-//            progressBar.setVisibility(View.VISIBLE);
             toilet_spinner.setEnabled(false);
             sort_spinner.setEnabled(false);
         }
 
         @Override
         protected String doInBackground(Void... voids) {
+            //first try to clear and sync localdb with dynamodb
+            if (!prefManager.isGuest() &&  ((MainActivity)getActivity()).isConnected) {
+                DbHelper dbHelper = new DbHelper(getContext());
+                SQLiteDatabase database = dbHelper.getWritableDatabase();
+                dbHelper.clearNotifications(database);
+                dbHelper.close();
+                getErrorsFromDynamo();
+            }
+            // load local db
             readErrorFromDb();
             return null;
         }
@@ -315,8 +341,21 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
             toilet_spinner.setSelection(0);
             sort_spinner.setSelection(0);
             adapter.filter("All",0);
-//            progressBar.setVisibility(View.INVISIBLE);
             swipeContainer.setRefreshing(false);
+        }
+    }
+
+    private void getErrorsFromDynamo(){
+        for(String toilet:saved_toilets) {
+            int numErrors;
+            DynamoDBQueryExpression<ToiletsDO> queryExpression = new DynamoDBQueryExpression<ToiletsDO>()
+                    .withHashKeyValues(new ToiletsDO("aws/things/" + toilet))
+                    .withConsistentRead(false);
+            PaginatedQueryList<ToiletsDO> list = dynamoDBMapper.query(ToiletsDO.class, queryExpression);
+            DbHelper dbHelper = new DbHelper(getContext());
+            SQLiteDatabase database =dbHelper.getWritableDatabase();
+            numErrors = dbHelper.saveErrorCodeBatch(list, database);
+            Log.d("log","Toilet: "+toilet + " " + numErrors + " errors.");
         }
     }
 

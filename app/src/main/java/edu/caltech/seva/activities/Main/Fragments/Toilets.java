@@ -76,7 +76,6 @@ public class Toilets extends Fragment {
         infoCard = (RelativeLayout) rootView.findViewById(R.id.toilet_info);
         up_animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
         down_animation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
-
         getActivity().setTitle("My Toilets");
 
         prefManager = new PrefManager(getContext());
@@ -86,29 +85,12 @@ public class Toilets extends Fragment {
             return rootView;
         }
 
-        toilet_ips.addAll(prefManager.getToilets());
-        DbHelper dbHelper = new DbHelper(getContext());
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        for(int i=0;i<toilet_ips.size();i++) {
-            Cursor cursor = dbHelper.readToiletInfo(database, toilet_ips.get(i));
-            String lat, lng, description, toiletName;
-            String[] coords = new String[2];
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                lat = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_LAT));
-                lng = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_LNG));
-                description = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_DESC));
-                toiletName = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_NAME));
-                coords[0] = lat;
-                coords[1] = lng;
-                Toilet tempToilet = new Toilet(coords,description,toiletName, toilet_ips.get(i));
-                toiletObjs.add(tempToilet);
-            }
-        }
-        dbHelper.close();
+        getToiletInfo();
 
         //get toilet status info async
         if(((MainActivity)getActivity()).isConnected) {
+
+            //setup aws
             AWSMobileClient.getInstance().initialize(getContext()).execute();
             AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
             AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
@@ -125,6 +107,7 @@ public class Toilets extends Fragment {
         else
             statusCheckDone = true;
 
+        //setup mapview
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
@@ -134,6 +117,7 @@ public class Toilets extends Fragment {
             e.printStackTrace();
         }
 
+        //populate mapview async
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -142,7 +126,7 @@ public class Toilets extends Fragment {
                 googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 googleMap.setBuildingsEnabled(true);
 
-                int lat, lng;
+                //create marker objects for each toilet
                 LatLng latLng = new LatLng(0,0);
                 LatLngBounds.Builder bld = new LatLngBounds.Builder();
                 for(Toilet toilet:toiletObjs){
@@ -166,39 +150,8 @@ public class Toilets extends Fragment {
                     @Override
                     public boolean onMarkerClick(Marker marker) {
                         if (!marker.equals(prevMarker) && statusCheckDone) {
-                            Toilet toilet = markerDataMap.get(marker);
-                            TextView title = (TextView) infoCard.findViewById(R.id.toilet_name);
-                            TextView description = (TextView) infoCard.findViewById(R.id.toilet_description);
-                            TextView syncTimestamp = (TextView) infoCard.findViewById(R.id.toilet_status_timestamp);
-                            View statusCircle = (View) infoCard.findViewById(R.id.toilet_status_circle);
+                            populateInfoCard(marker);
 
-                            SimpleDateFormat formatter = new SimpleDateFormat("HH:mm z MM/dd/yyyy");
-                            String timestamp = "Last Sync ";
-                            if(toilet.getSyncTimestamp() == null)
-                                timestamp = "No connection..";
-                            else
-                              timestamp += formatter.format(toilet.getSyncTimestamp());
-                            title.setText(toilet.getToiletName());
-                            description.setText(toilet.getDescription());
-                            syncTimestamp.setText(timestamp);
-
-                            if(toilet.getStatus() != null) {
-                                switch (toilet.getStatus()) {
-                                    case ERROR:
-                                        statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_error));
-                                        break;
-                                    case HEALTHY:
-                                        statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_healthy));
-                                        break;
-                                    case DISABLED:
-                                        statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_disabled));
-                                        break;
-                                }
-                            } else
-                                statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_empty));
-                            infoCard.startAnimation(up_animation);
-                            infoCard.setVisibility(View.VISIBLE);
-                            prevMarker = marker;
                         } else if(!statusCheckDone) {
                             Toast.makeText(getContext(), "Syncing toilets..", Toast.LENGTH_SHORT).show();
                         }
@@ -219,6 +172,66 @@ public class Toilets extends Fragment {
         });
 
         return rootView;
+    }
+
+    public void getToiletInfo() {
+        //get toilet info from local db
+        toilet_ips.addAll(prefManager.getToilets());
+        DbHelper dbHelper = new DbHelper(getContext());
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        for(int i=0;i<toilet_ips.size();i++) {
+            Cursor cursor = dbHelper.readToiletInfo(database, toilet_ips.get(i));
+            String lat, lng, description, toiletName;
+            String[] coords = new String[2];
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                lat = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_LAT));
+                lng = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_LNG));
+                description = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_DESC));
+                toiletName = cursor.getString(cursor.getColumnIndex(DbContract.TOILET_NAME));
+                coords[0] = lat;
+                coords[1] = lng;
+                Toilet tempToilet = new Toilet(coords,description,toiletName, toilet_ips.get(i));
+                toiletObjs.add(tempToilet);
+            }
+        }
+        dbHelper.close();
+    }
+
+    public void populateInfoCard(Marker marker) {
+        Toilet toilet = markerDataMap.get(marker);
+        TextView title = (TextView) infoCard.findViewById(R.id.toilet_name);
+        TextView description = (TextView) infoCard.findViewById(R.id.toilet_description);
+        TextView syncTimestamp = (TextView) infoCard.findViewById(R.id.toilet_status_timestamp);
+        View statusCircle = (View) infoCard.findViewById(R.id.toilet_status_circle);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm z MM/dd/yyyy");
+        String timestamp = "Last Sync ";
+        if(toilet.getSyncTimestamp() == null)
+            timestamp = "No connection..";
+        else
+            timestamp += formatter.format(toilet.getSyncTimestamp());
+        title.setText(toilet.getToiletName());
+        description.setText(toilet.getDescription());
+        syncTimestamp.setText(timestamp);
+
+        if(toilet.getStatus() != null) {
+            switch (toilet.getStatus()) {
+                case ERROR:
+                    statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_error));
+                    break;
+                case HEALTHY:
+                    statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_healthy));
+                    break;
+                case DISABLED:
+                    statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_disabled));
+                    break;
+            }
+        } else
+            statusCircle.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.status_circle_empty));
+        infoCard.startAnimation(up_animation);
+        infoCard.setVisibility(View.VISIBLE);
+        prevMarker = marker;
     }
 
     @Override
