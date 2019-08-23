@@ -7,19 +7,26 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home"
-            android:title="Home"/>
+            android:title="@string/action_home"/>
         <item
-            android:id="@+id/nav_toilets"
-            android:icon="@drawable/ic_map"
-            android:title="My Toilets" />
+            android:id="@+id/nav_job"
+            android:icon="@drawable/ic_assignment_black_24dp"
+            android:title="@string/action_job" />
         <item
             android:id="@+id/nav_notifications"
             android:icon="@drawable/ic_notification"
-            android:title="Notifications" />
+            android:title="@string/action_notifications" />
+    </group>
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings"
-            android:title="Settings" />
+            android:title="@string/action_settings" />
+        <item
+            android:id="@+id/nav_help"
+            android:icon="@drawable/ic_help_black_24dp"
+            android:title="@string/action_help" />
     </group>
-
 </menu>

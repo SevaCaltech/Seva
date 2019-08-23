@@ -13,12 +13,14 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Repair.adapters.MyPagerAdapter;
 import edu.caltech.seva.activities.Repair.fragments.TabFragment;
 import edu.caltech.seva.activities.Repair.fragments.TestFragment;
 import edu.caltech.seva.activities.Repair.fragments.TitleFragment;
+import edu.caltech.seva.models.RepairActivityData;
 
 public class RepairActivity extends AppCompatActivity {
 
@@ -30,24 +32,18 @@ public class RepairActivity extends AppCompatActivity {
         TabLayout mTabLayout;
         ViewPager mPager;
         MyPagerAdapter mAdapter;
-        String errorCode, repairCode, repairTitle, toolInfo, totalTime, toiletIP, timestamp;
-        int totalSteps;
+        RepairActivityData repairData;
 
         //receive error code from the notification clicked and passes to fragments
-        errorCode = getIntent().getStringExtra("errorCode");
-        repairCode = getIntent().getStringExtra("repairCode");
-        repairTitle = getIntent().getStringExtra("repairTitle");
-        toolInfo = getIntent().getStringExtra("toolInfo");
-        totalTime = getIntent().getStringExtra("totalTime");
-        totalSteps = getIntent().getIntExtra("totalSteps",0);
-        toiletIP = getIntent().getStringExtra("toiletIP");
-        timestamp = getIntent().getStringExtra("timestamp");
+        repairData = (RepairActivityData) getIntent().getSerializableExtra("RepairData");
 
         //sets up new activity toolbar and tab layout
         setContentView(R.layout.activity_repair);
-        mAdapter = new MyPagerAdapter(getSupportFragmentManager(), errorCode, repairCode, repairTitle, toolInfo, totalTime, totalSteps, toiletIP, timestamp);
+        mAdapter = new MyPagerAdapter(getSupportFragmentManager(),repairData);
         mToolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         mToolbar.setTitle("Repair Guide");
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -65,10 +61,17 @@ public class RepairActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.back:
-                Intent intent = NavUtils.getParentActivityIntent(this);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                NavUtils.navigateUpTo(this,intent);
+            case R.id.cancel_option:
+                Toast.makeText(this,"Cancel selected..", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.help_option:
+                Toast.makeText(this,"Help selected..", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.search_option:
+                Toast.makeText(this,"Search selected..", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.test_option:
+                Toast.makeText(this,"Test selected..", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

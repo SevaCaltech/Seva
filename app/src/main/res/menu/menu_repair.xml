@@ -3,10 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="seva.caltech.android.activities.Repair.RepairActivity">
     <item
-        android:id="@+id/back"
-        android:title="Back"
-        android:orderInCategory="200"
-        app:showAsAction="always"
-        android:icon="@drawable/back_arrow">
+        android:id="@+id/test_option"
+        android:title="@string/test_option_text"
+        android:orderInCategory="1"
+        app:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/search_option"
+        android:title="@string/search_option_text"
+        android:orderInCategory="2"
+        app:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/help_option"
+        android:title="@string/help_option_text"
+        android:orderInCategory="3"
+        app:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/cancel_option"
+        android:title="@string/cancel_option_text"
+        android:orderInCategory="4"
+        app:showAsAction="never">
     </item>
 </menu>

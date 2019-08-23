@@ -80,7 +80,6 @@ public class Home extends Fragment implements View.OnClickListener{
     //ui elements
     private ProgressBar progressBar;
     private TextView displayName, subtext, numNotifications, numToilets;
-    private Button helpButton;
     private static String name, uid, email;
     private CardView toiletCard, notificationCard;
 
@@ -89,7 +88,6 @@ public class Home extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.activity_home, null);
-        helpButton = (Button) rootView.findViewById(R.id.helpButton);
         displayName = (TextView) rootView.findViewById(R.id.opName);
         subtext = (TextView) rootView.findViewById(R.id.opID);
         numNotifications = (TextView) rootView.findViewById(R.id.numNotifications);
@@ -142,7 +140,6 @@ public class Home extends Fragment implements View.OnClickListener{
         }
 
         getActivity().setTitle("Home");
-        helpButton.setOnClickListener(this);
         toiletCard.setOnClickListener(this);
         notificationCard.setOnClickListener(this);
 
@@ -210,12 +207,6 @@ public class Home extends Fragment implements View.OnClickListener{
                 //launch notifications fragment
                 fragment = new Notifications();
                 fragment_tag = "NOTIFICATIONS";
-                break;
-            case R.id.helpButton:
-                final String helpNumber = "555-555-5555";
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + helpNumber));
-                startActivity(callIntent);
                 break;
         }
 

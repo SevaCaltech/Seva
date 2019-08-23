@@ -8,22 +8,15 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import edu.caltech.seva.activities.Repair.fragments.TabFragment;
 import edu.caltech.seva.activities.Repair.fragments.TestFragment;
 import edu.caltech.seva.activities.Repair.fragments.TitleFragment;
+import edu.caltech.seva.models.RepairActivityData;
 
 //creates a different fragment depending on which position the tab is
 public class MyPagerAdapter extends FragmentStatePagerAdapter {
-    private String errorCode, repairCode, repairTitle, toolInfo, totalTime, toiletIP, timestamp;
-    private int totalSteps;
+    private RepairActivityData repairData;
 
-    public MyPagerAdapter(FragmentManager fm, String errorCode, String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps, String toiletIP, String timestamp) {
+    public MyPagerAdapter(FragmentManager fm, RepairActivityData repairData) {
         super(fm);
-        this.errorCode = errorCode;
-        this.repairCode = repairCode;
-        this.repairTitle = repairTitle;
-        this.toolInfo = toolInfo;
-        this.totalTime = totalTime;
-        this.totalSteps = totalSteps;
-        this.toiletIP = toiletIP;
-        this.timestamp = timestamp;
+        this.repairData = repairData;
     }
 
     //the first fragment is the title page, the last is the test page, the rest are set tab fragments
@@ -31,17 +24,20 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
 
         if (position == 0)
-            return TitleFragment.newInstance(repairCode, repairTitle, toolInfo, totalTime, totalSteps);
-        if (position == totalSteps+1)
-            return TestFragment.newInstance(errorCode, toiletIP, timestamp);
+            return TitleFragment.newInstance(repairData.getRepairCode(), repairData.getRepairTitle(),
+                    repairData.getToolInfo(), repairData.getTotalTime(), repairData.getTotalSteps(),
+                    repairData.getLat(), repairData.getLng());
+        if (position == repairData.getTotalSteps()+1)
+            return TestFragment.newInstance(repairData.getErrorCode(), repairData.getToiletIP(),
+                    repairData.getTimestamp());
         else
-            return TabFragment.newInstance(repairCode,position);
+            return TabFragment.newInstance(repairData.getRepairCode(),position);
     }
 
     //gives the total amount of tabs
     @Override
     public int getCount() {
-        return totalSteps+2;
+        return repairData.getTotalSteps()+2;
     }
 
 
@@ -51,7 +47,7 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         if (position ==0)
             return "Info";
-        if (position == totalSteps+1)
+        if (position == repairData.getTotalSteps()+1)
             return "Test";
         else
             return "Step " + position;

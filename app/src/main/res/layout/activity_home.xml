@@ -161,20 +161,6 @@
         android:paddingLeft="15dp"
         android:paddingRight="15dp">
 
-        <Button
-            android:id="@+id/helpButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/accent"
-            android:textColor="@color/icons"
-            android:elevation="10dp"
-            android:minHeight="0dp"
-            android:paddingTop="11dp"
-            android:paddingBottom="9dp"
-            android:paddingRight="15dp"
-            android:paddingLeft="15dp"
-            android:text="@string/help_button_text"/>
-
     </LinearLayout>
 
     <com.github.ybq.android.spinkit.SpinKitView

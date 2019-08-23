@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -91,10 +92,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onBackStackChanged() {
                 Fragment current = getCurrentFragment();
-                if (current instanceof Home)
+                if (current instanceof Home || current instanceof Toilets)
                     navigationView.setCheckedItem(R.id.nav_home);
-                else if (current instanceof Toilets)
-                    navigationView.setCheckedItem(R.id.nav_toilets);
                 else if (current instanceof Notifications)
                     navigationView.setCheckedItem(R.id.nav_notifications);
                 else
@@ -129,9 +128,8 @@ public class MainActivity extends AppCompatActivity
                 fragment_tag = "HOME";
                 break;
 
-            case R.id.nav_toilets:
-                fragment = new Toilets();
-                fragment_tag = "TOILETS";
+            case R.id.nav_job:
+                Toast.makeText(this, "Current Job selected..", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_notifications:
@@ -142,6 +140,13 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_settings:
                 fragment = new Settings();
                 fragment_tag = "SETTINGS";
+                break;
+
+            case R.id.nav_help:
+                final String helpNumber = "555-555-5555";
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + helpNumber));
+                startActivity(callIntent);
                 break;
         }
 

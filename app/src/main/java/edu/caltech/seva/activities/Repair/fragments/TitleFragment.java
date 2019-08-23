@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.helpers.DbContract;
@@ -23,8 +26,10 @@ public class TitleFragment extends Fragment {
     private static final String TOOL = "TOOL";
     private static final String TIME = "TIME";
     private static final String STEPS = "STEPS";
+    private static final String LAT = "LAT";
+    private static final String LNG = "LNG";
 
-    private String repairCode, repairTitle, totalTime, toolInfo;
+    private String repairCode, repairTitle, totalTime, toolInfo, lat, lng;
     private int totalSteps;
 
     //should be empty
@@ -33,7 +38,7 @@ public class TitleFragment extends Fragment {
     }
 
     //sends the errorcode to the created fragment
-    public static TitleFragment newInstance(String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps) {
+    public static TitleFragment newInstance(String repairCode, String repairTitle, String toolInfo, String totalTime, int totalSteps, String lat, String lng) {
         TitleFragment titleFragment = new TitleFragment();
         Bundle bundle = new Bundle();
         bundle.putString(REPAIR_CODE,repairCode);
@@ -41,6 +46,8 @@ public class TitleFragment extends Fragment {
         bundle.putString(TOOL,toolInfo);
         bundle.putString(TIME,totalTime);
         bundle.putInt(STEPS,totalSteps);
+        bundle.putString(LAT, lat);
+        bundle.putString(LNG, lng);
         titleFragment.setArguments(bundle);
         return titleFragment;
     }
@@ -57,6 +64,9 @@ public class TitleFragment extends Fragment {
         totalTime = bundle.getString(TIME);
         toolInfo = bundle.getString(TOOL);
         totalSteps = bundle.getInt(STEPS);
+        lat = bundle.getString(LAT);
+        lng = bundle.getString(LNG);
+        Log.d("log","coords: " + lat + ", " + lng);
 
         //sets text to repairInfo from db
         TextView display_repairTitle = (TextView) rootView.findViewById(R.id.repairTitle);
@@ -64,11 +74,21 @@ public class TitleFragment extends Fragment {
         TextView display_totalTime = (TextView) rootView.findViewById(R.id.totalTime);
         TextView display_toolInfo = (TextView) rootView.findViewById(R.id.toolInfo);
         TextView display_errorCode = (TextView) rootView.findViewById(R.id.errorCode);
+        Button confirm_button  = (Button) rootView.findViewById(R.id.confirm_location_button);
+
         display_repairTitle.setText(repairTitle);
         display_toolInfo.setText(toolInfo);
         display_totalSteps.setText(Integer.toString(totalSteps));
         display_totalTime.setText(totalTime);
         display_errorCode.setText("Repair Code: "+repairCode);
+
+        confirm_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(), "Checking Location..", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return rootView;
     }
 }

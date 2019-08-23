@@ -143,6 +143,15 @@
             android:textSize="15sp"
             android:textColor="@color/primary_text"/>
 
+        <Button
+            android:id="@+id/confirm_location_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="36dp"
+            android:text="@string/confirm_button_text"
+            android:background="@color/accent"
+            android:textColor="@android:color/white"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

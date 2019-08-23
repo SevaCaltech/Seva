@@ -59,6 +59,7 @@ import edu.caltech.seva.models.IncomingError;
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.adapters.RecyclerAdapter;
 import edu.caltech.seva.activities.Repair.RepairActivity;
+import edu.caltech.seva.models.RepairActivityData;
 import edu.caltech.seva.models.ToiletsDO;
 import it.gmariotti.recyclerview.adapter.AlphaAnimatorAdapter;
 import it.gmariotti.recyclerview.adapter.ScaleInAnimatorAdapter;
@@ -242,15 +243,13 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
     @Override
     public void acceptClicked(View view, IncomingError incomingError) {
         Intent intent = new Intent(getActivity(), RepairActivity.class);
-        intent.putExtra("errorCode", incomingError.getErrorCode());
-        intent.putExtra("repairCode", incomingError.getRepairCode());
-        intent.putExtra("repairTitle", incomingError.getRepairTitle());
-        intent.putExtra("toolInfo", incomingError.getToolInfo());
-        intent.putExtra("totalTime", incomingError.getTotalTime());
-        intent.putExtra("totalSteps", incomingError.getTotalSteps());
-        intent.putExtra("toiletIP", incomingError.getToiletIP());
-        intent.putExtra("timestamp", incomingError.getDate());
-        intent.putExtra("toiletName", incomingError.getToiletName());
+        RepairActivityData data = new RepairActivityData(incomingError.getErrorCode(),
+                incomingError.getRepairCode(), incomingError.getRepairTitle(),
+                incomingError.getTotalTime(), incomingError.getToolInfo(),
+                incomingError.getTotalSteps(), incomingError.getToiletIP(), incomingError.getDate(),
+                incomingError.getLat(), incomingError.getLng());
+
+        intent.putExtra("RepairData", data);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
