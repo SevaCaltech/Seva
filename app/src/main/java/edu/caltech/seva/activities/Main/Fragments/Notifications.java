@@ -44,6 +44,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryLi
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.google.gson.Gson;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -248,7 +249,9 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
                 incomingError.getTotalTime(), incomingError.getToolInfo(),
                 incomingError.getTotalSteps(), incomingError.getToiletIP(), incomingError.getDate(),
                 incomingError.getLat(), incomingError.getLng());
-
+        Gson gson = new Gson();
+        String json = gson.toJson(data);
+        prefManager.setCurrentJob(json);
         intent.putExtra("RepairData", data);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

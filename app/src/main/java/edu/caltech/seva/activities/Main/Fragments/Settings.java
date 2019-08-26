@@ -53,7 +53,7 @@ public class Settings extends Fragment implements View.OnClickListener {
                 languageDialog.show(getFragmentManager(),"language_settings");
                 break;
             case R.id.logout:
-                ((MainActivity)getActivity()).logout(false);
+                ((MainActivity)getActivity()).logout();
                 break;
         }
     }

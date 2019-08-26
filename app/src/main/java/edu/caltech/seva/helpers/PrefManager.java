@@ -19,6 +19,7 @@ public class PrefManager {
     private static final String TOILETS = "toilets";
     private static final String UID = "uid";
     private static final String IS_GUEST = "isGuest";
+    private static final String CURRENT_JOB = "currentJob";
     public PrefManager(Context context) {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
@@ -60,10 +61,16 @@ public class PrefManager {
         editor.commit();
     }
 
+    public void setCurrentJob(String currentJob) {
+        editor.putString(CURRENT_JOB, currentJob);
+        editor.commit();
+    }
+
     public boolean isFirstTimeLaunch() { return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);}
     public Set<String> getToilets() { return pref.getStringSet(TOILETS,null);}
     public String getUsername() { return pref.getString(USERNAME, "");}
     public String getEmail() { return pref.getString(EMAIL, "");}
     public String getUid() { return pref.getString(UID, "");}
     public Boolean isGuest() { return pref.getBoolean(IS_GUEST,false);}
+    public String getCurrentJob() { return pref.getString(CURRENT_JOB, null);}
 }

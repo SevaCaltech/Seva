@@ -137,6 +137,7 @@ public class Home extends Fragment implements View.OnClickListener{
             Log.d("log", "\ttoilets: " + toilets);
             Log.d("log", "\tuid: " + uid);
             Log.d("log","\tisGuest: " + prefManager.isGuest());
+            Log.d("log", "\tcurrentJob: " + prefManager.getCurrentJob());
         }
 
         getActivity().setTitle("Home");

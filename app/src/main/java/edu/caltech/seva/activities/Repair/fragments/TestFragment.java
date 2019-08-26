@@ -34,6 +34,7 @@ import java.util.Date;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.MainActivity;
+import edu.caltech.seva.activities.Repair.RepairActivity;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.LambdaInterface;
@@ -94,37 +95,19 @@ public class TestFragment extends Fragment {
                     .dynamoDBClient(dynamoDBClient)
                     .awsConfiguration(configuration)
                     .build();
-
-            IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
-            try {
-                JSONObject cognitoObj = identityManager.getConfiguration().optJsonObject("CredentialsProvider");
-                JSONObject myJSON = cognitoObj.getJSONObject("CognitoIdentity").getJSONObject("Default");
-                final String IDENTITY_POOL_ID = myJSON.getString("PoolId");
-                final String REGION = myJSON.getString("Region");
-                Log.d("log", "check: " + IDENTITY_POOL_ID + " " + REGION);
-                factory = new LambdaInvokerFactory(getActivity().getApplicationContext(),
-                        Regions.fromName(REGION), credentialsProvider);
-                lambdaInterface = factory.build(LambdaInterface.class);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         }
 
         testButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "Testing System..", Toast.LENGTH_SHORT).show();
-
-                Date timestamp = new Date(System.currentTimeMillis());
-                LambdaTriggerInfo info = new LambdaTriggerInfo(prefManager.getUsername(), timestamp, toiletIP, errorCode );
-                LambdaTask lambda = new LambdaTask();
-                lambda.execute(info);
+                ((RepairActivity)getActivity()).testSystem();
             }
         });
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getActivity(), "Marked as done..", Toast.LENGTH_SHORT).show();
+                prefManager.setCurrentJob(null);
                 completeRepair(errorCode, toiletIP, timestamp);
             }
         });
@@ -153,34 +136,5 @@ public class TestFragment extends Fragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         getActivity().finish();
-    }
-
-    private class LambdaTask extends AsyncTask<LambdaTriggerInfo, Void, JsonObject> {
-
-        @Override
-        protected JsonObject doInBackground(LambdaTriggerInfo... params) {
-            try{
-                Log.d("log", "Sending: \n\tusername: " + params[0].getUsername() +
-                        "\n\ttoiletIP: " + params[0].getToiletIP() + "\n\terrorCode: " +
-                        params[0].getErrorCode() + "\n\ttimestamp: " + params[0].getTimestamp().toString());
-                return  lambdaInterface.testButtonTriggered(params[0]);
-            } catch (LambdaFunctionException e) {
-                Log.d("log", "Failed to invoke test lambda", e);
-                return null;
-            } catch (RuntimeException e) {
-                Log.d("log", "Took too long to connect to lambda", e);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(JsonObject result) {
-            if (result == null) {
-                Toast.makeText(getContext(), "Unable to connect to toilet..", Toast.LENGTH_LONG).show();
-                return;
-            }
-            String message = result.get("msg").toString().replaceAll("\"","");
-            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-        }
     }
 }

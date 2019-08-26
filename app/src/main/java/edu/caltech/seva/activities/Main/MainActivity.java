@@ -25,9 +25,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
+import com.google.gson.Gson;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Login.LoginActivity;
@@ -35,8 +37,10 @@ import edu.caltech.seva.activities.Main.Fragments.Home;
 import edu.caltech.seva.activities.Main.Fragments.Notifications;
 import edu.caltech.seva.activities.Main.Fragments.Settings;
 import edu.caltech.seva.activities.Main.Fragments.Toilets;
+import edu.caltech.seva.activities.Repair.RepairActivity;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
+import edu.caltech.seva.models.RepairActivityData;
 
 //This is the main activity for the app which contains the nav drawer and its fragments
 public class MainActivity extends AppCompatActivity
@@ -50,7 +54,9 @@ public class MainActivity extends AppCompatActivity
     PrefManager prefManager;
     String[] PERMISSIONS = {
             Manifest.permission.READ_SMS,
-            Manifest.permission.CALL_PHONE
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
     };
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -96,7 +102,7 @@ public class MainActivity extends AppCompatActivity
                     navigationView.setCheckedItem(R.id.nav_home);
                 else if (current instanceof Notifications)
                     navigationView.setCheckedItem(R.id.nav_notifications);
-                else
+                else if (current instanceof Settings)
                     navigationView.setCheckedItem(R.id.nav_settings);
             }
         });
@@ -129,7 +135,20 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.nav_job:
-                Toast.makeText(this, "Current Job selected..", Toast.LENGTH_SHORT).show();
+                Gson gson = new Gson();
+                String json = prefManager.getCurrentJob();
+                if (json != null){
+                    RepairActivityData currentJob = gson.fromJson(json, RepairActivityData.class);
+                    Intent intent = new Intent(this, RepairActivity.class);
+                    intent.putExtra("RepairData", currentJob);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+                else
+                    Toast.makeText(this, "No current job..", Toast.LENGTH_SHORT).show();
+                    item.setChecked(false);
+                    navigationView.setCheckedItem(R.id.nav_home);
                 break;
 
             case R.id.nav_notifications:
@@ -144,9 +163,13 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_help:
                 final String helpNumber = "555-555-5555";
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + helpNumber));
-                startActivity(callIntent);
+                if(ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED)
+                    Toast.makeText(this, "Check app permissions..", Toast.LENGTH_SHORT).show();
+                else {
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + helpNumber));
+                    startActivity(callIntent);
+                }
                 break;
         }
 
@@ -169,30 +192,30 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void checkAppPermissions(){
-        for (String permission: PERMISSIONS){
-            if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED)
-                ActivityCompat.requestPermissions(this, new String[]{permission},0);
-        }
+        if (!hasPermissions(this,PERMISSIONS))
+            ActivityCompat.requestPermissions(this, PERMISSIONS,1);
     }
 
-    public void logout(boolean launchGuest) {
-        IdentityManager.getDefaultIdentityManager().signOut();
-
-        if(launchGuest) {
-            prefManager.setIsGuest(true);
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        } else {
-            prefManager.clearPrefs();
-            DbHelper dbHelper = new DbHelper(this);
-            SQLiteDatabase database = dbHelper.getWritableDatabase();
-            dbHelper.clearNotifications(database);
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            dbHelper.close();
+    public static boolean hasPermissions(Context context, String... permissions){
+        if(context != null && permissions != null){
+            for (String permission: permissions){
+                if(ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
+                    return false;
+            }
         }
+        return true;
+    }
+
+    public void logout() {
+        IdentityManager.getDefaultIdentityManager().signOut();
+        prefManager.clearPrefs();
+        DbHelper dbHelper = new DbHelper(this);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        dbHelper.clearNotifications(database);
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        dbHelper.close();
         finish();
     }
 
@@ -210,6 +233,15 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         registerReceiver(broadcastReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
         updateNetworkState();
+
+        //make sure checked item is correct
+        Fragment current = getCurrentFragment();
+        if (current instanceof Home || current instanceof Toilets)
+            navigationView.setCheckedItem(R.id.nav_home);
+        else if (current instanceof Notifications)
+            navigationView.setCheckedItem(R.id.nav_notifications);
+        else if (current instanceof Settings)
+            navigationView.setCheckedItem(R.id.nav_settings);
     }
 
     @Override

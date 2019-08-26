@@ -82,5 +82,6 @@
     <string name="help_option_text">Help</string>
     <string name="cancel_option_text">Cancel Job</string>
     <string name="confirm_button_text">CONFIRM ARRIVAL</string>
+    <string name="directions_option_text">Directions</string>
 
 </resources>

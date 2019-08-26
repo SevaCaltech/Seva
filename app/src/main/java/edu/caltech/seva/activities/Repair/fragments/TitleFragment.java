@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import edu.caltech.seva.R;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.SingleShotLocationProvider;
 
 //handles the title fragment
 public class TitleFragment extends Fragment {
@@ -66,7 +69,7 @@ public class TitleFragment extends Fragment {
         totalSteps = bundle.getInt(STEPS);
         lat = bundle.getString(LAT);
         lng = bundle.getString(LNG);
-        Log.d("log","coords: " + lat + ", " + lng);
+        setHasOptionsMenu(true);
 
         //sets text to repairInfo from db
         TextView display_repairTitle = (TextView) rootView.findViewById(R.id.repairTitle);
@@ -85,10 +88,26 @@ public class TitleFragment extends Fragment {
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Checking Location..", Toast.LENGTH_SHORT).show();
+                Log.d("log","toilet coords: " + lat + ", " + lng);
+                checkLocation();
             }
         });
 
         return rootView;
+    }
+
+    public void checkLocation(){
+        Toast.makeText(getContext(), "Checking Location..", Toast.LENGTH_SHORT).show();
+        SingleShotLocationProvider.requestSingleUpdate(getContext(), new SingleShotLocationProvider.LocationCallback() {
+            @Override
+            public void onNewLocationAvailable(SingleShotLocationProvider.GPSCoordinates location) {
+                Log.d("log", "my location: " + location.toString());
+            }
+        });
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_repair_info, menu);
     }
 }
