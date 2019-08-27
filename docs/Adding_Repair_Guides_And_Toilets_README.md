@@ -39,12 +39,24 @@ DELETE FROM repairStep-X
 
 10. Import the repairStep-X csv and verify that the table is correct, following steps 5-7 above.
 
+#### repairLookup table
+The repairLookup table associates errorCodes with repairCodes.
+
+11. Create the csv with the followin structure and name it `repairLookup.csv`.
+ <img src="readme/excel-4.png" alt="repair step" width="800"/>
+
+12. If the repairLookup table exists already, clear it just like Step 4 above
+```
+DELETE FROM repairLookup
+```
+
+
 ### Adding new toilets
 The information for the toilets is stored locally on the App so this will also be done in DBBrowser.  
 
 1. Open the sevaDb just as Steps 1-2 above.
 2. Create the csv with the following structure and name it `toiletInfo.csv`.
- <img src="docs/readme/excel-3.png" alt="toilet Info" width="800"/>
+ <img src="readme/excel-3.png" alt="toilet Info" width="800"/>
 
 3. Clear the current toiletInfo table by following step 4 from the repair guide instructions above.
 4. Import the toiletInfo csv and verify that the table is correct, following steps 5-7 above.

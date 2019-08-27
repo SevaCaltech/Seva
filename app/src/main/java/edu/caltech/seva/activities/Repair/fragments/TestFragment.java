@@ -1,13 +1,18 @@
 package edu.caltech.seva.activities.Repair.fragments;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +35,7 @@ import com.google.gson.JsonObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Date;
 
 import edu.caltech.seva.R;
@@ -43,15 +49,14 @@ import edu.caltech.seva.models.ToiletsDO;
 
 //TODO: connect to server to start the process/poll sensors, should communicate back to let user know success
 //handles the test fragment at the end of the repair guide viewpager
-public class TestFragment extends Fragment {
+public class TestFragment extends Fragment implements View.OnClickListener {
 
     DynamoDBMapper dynamoDBMapper;
     PrefManager prefManager;
     private static final String ERROR_CODE = "ERROR_CODE";
     private static final String TOILET_IP = "TOILET_ID";
     private static final String TIMESTAMP = "TIMESTAMP";
-    LambdaInterface lambdaInterface;
-    LambdaInvokerFactory factory;
+    String errorCode, toiletIP, timestamp;
 
     public TestFragment() {
 
@@ -79,11 +84,15 @@ public class TestFragment extends Fragment {
         }
         Button testButton = (Button) rootView.findViewById(R.id.testButton);
         Button doneButton = (Button) rootView.findViewById(R.id.doneButton);
+        Button pictureButton = (Button) rootView.findViewById(R.id.pictureButton);
+        testButton.setOnClickListener(this);
+        doneButton.setOnClickListener(this);
+        pictureButton.setOnClickListener(this);
 
         Bundle arguments = getArguments();
-        final String errorCode = arguments.getString(ERROR_CODE);
-        final String toiletIP = arguments.getString(TOILET_IP);
-        final String timestamp = arguments.getString(TIMESTAMP);
+        errorCode = arguments.getString(ERROR_CODE);
+        toiletIP = arguments.getString(TOILET_IP);
+        timestamp = arguments.getString(TIMESTAMP);
 
         if(!prefManager.isGuest()){
             AWSMobileClient.getInstance().initialize(getContext()).execute();
@@ -97,20 +106,6 @@ public class TestFragment extends Fragment {
                     .build();
         }
 
-        testButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((RepairActivity)getActivity()).testSystem();
-            }
-        });
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getActivity(), "Marked as done..", Toast.LENGTH_SHORT).show();
-                prefManager.setCurrentJob(null);
-                completeRepair(errorCode, toiletIP, timestamp);
-            }
-        });
         return rootView;
     }
 
@@ -136,5 +131,30 @@ public class TestFragment extends Fragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         getActivity().finish();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.testButton:
+                ((RepairActivity)getActivity()).testSystem();
+                break;
+            case R.id.pictureButton:
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+                File f = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+//                ClipData clip = ClipData.newUri(getContext().getContentResolver(), "A photo", Uri.fromFile(f));
+//                intent.setClipData(clip);
+                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                startActivityForResult(intent, 0);
+                break;
+            case R.id.doneButton:
+                Toast.makeText(getActivity(), "Marked as done..", Toast.LENGTH_SHORT).show();
+                prefManager.setCurrentJob(null);
+                completeRepair(errorCode, toiletIP, timestamp);
+                break;
+        }
     }
 }

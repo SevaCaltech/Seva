@@ -1,5 +1,6 @@
 # Creating new users
-Here are the steps to create new operators for the app.
+*Note: this is automated in the `add_user.py` script*
+Here are the steps to create new operators for the app from the AWS Management Console.
 
 #### Cognito
 Cognito will allow the users to login to the app.
