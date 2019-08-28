@@ -23,18 +23,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaFunctionException;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
+import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
 import com.amazonaws.regions.Regions;
 import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.UnknownHostException;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import edu.caltech.seva.R;
@@ -55,6 +62,8 @@ public class RepairActivity extends AppCompatActivity {
     RepairActivityData repairData;
     LambdaInterface lambdaInterface;
     LambdaInvokerFactory factory;
+    public static PinpointManager pinpointManager;
+    public Long timeStarted, timeEnded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +90,7 @@ public class RepairActivity extends AppCompatActivity {
         mPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mPager);
 
+        timeStarted = System.currentTimeMillis();
         if (!prefManager.isGuest())
             initializeAWS();
     }
@@ -88,6 +98,7 @@ public class RepairActivity extends AppCompatActivity {
     public void initializeAWS(){
         AWSMobileClient.getInstance().initialize(this).execute();
         AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
+        AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
 
         IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
         try {
@@ -95,13 +106,16 @@ public class RepairActivity extends AppCompatActivity {
             JSONObject myJSON = cognitoObj.getJSONObject("CognitoIdentity").getJSONObject("Default");
             final String IDENTITY_POOL_ID = myJSON.getString("PoolId");
             final String REGION = myJSON.getString("Region");
-            Log.d("log", "check: " + IDENTITY_POOL_ID + " " + REGION);
             factory = new LambdaInvokerFactory(this.getApplicationContext(),
                     Regions.fromName(REGION), credentialsProvider);
             lambdaInterface = factory.build(LambdaInterface.class);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        PinpointConfiguration config = new PinpointConfiguration(this, credentialsProvider, configuration);
+        pinpointManager = new PinpointManager(config);
+        pinpointManager.getSessionClient().startSession();
     }
 
     public void testSystem(){
@@ -113,7 +127,22 @@ public class RepairActivity extends AppCompatActivity {
         lambda.execute(info);
     }
 
+    public void logEvent() {
+        try {
+            long seconds_diff = (timeEnded - timeStarted) / 1000;
+            Log.d("log", "[" + repairData.getRepairCode() + "] repair time (seconds): " + seconds_diff);
+            final AnalyticsEvent event =
+                    pinpointManager.getAnalyticsClient().createEvent("RepairDone")
+                            .withAttribute("repairCode", repairData.getRepairCode())
+                            .withMetric("seconds_to_complete", (double) seconds_diff);
 
+            pinpointManager.getAnalyticsClient().recordEvent(event);
+            pinpointManager.getAnalyticsClient().submitEvents();
+        } catch (AmazonClientException e){
+            e.printStackTrace();
+//            Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,6 +202,17 @@ public class RepairActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            pinpointManager.getSessionClient().stopSession();
+            pinpointManager.getAnalyticsClient().submitEvents();
+        }catch (AmazonClientException e){
+            e.printStackTrace();
         }
     }
 

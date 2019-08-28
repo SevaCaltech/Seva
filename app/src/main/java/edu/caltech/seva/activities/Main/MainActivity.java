@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.google.gson.Gson;
 
 import edu.caltech.seva.R;

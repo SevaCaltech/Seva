@@ -24,5 +24,28 @@
     "Default": {
       "Region": "us-east-1"
     }
+  },
+  "S3TransferUtility": {
+    "Default": {
+      "Bucket": "seva-userfiles",
+      "Region": "us-east-1"
+    }
+  },
+  "UserFileManager": {
+    "Default": {
+      "Bucket": "seva-userfiles",
+      "Region": "us-east-1"
+    }
+  },
+  "PinpointAnalytics": {
+    "Default": {
+      "AppId": "e91bec4356ca4bdb82480a45b245e7a1",
+      "Region": "us-east-1"
+    }
+  },
+  "PinpointTargeting": {
+    "Default": {
+      "Region": "us-east-1"
+    }
   }
 }
