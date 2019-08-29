@@ -31,7 +31,8 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter {
             return TestFragment.newInstance(repairData.getErrorCode(), repairData.getToiletIP(),
                     repairData.getTimestamp());
         else
-            return TabFragment.newInstance(repairData.getRepairCode(),position);
+            return TabFragment.newInstance(repairData.getRepairCode(),position,
+                    repairData.getToiletIP(), repairData.getErrorCode());
     }
 
     //gives the total amount of tabs

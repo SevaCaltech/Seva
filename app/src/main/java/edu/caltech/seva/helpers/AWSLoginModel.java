@@ -74,7 +74,7 @@ public class AWSLoginModel {
         public void getMFACode(MultiFactorAuthenticationContinuation continuation) {}
         @Override
         public void authenticationChallenge(ChallengeContinuation continuation) {
-            //I have this just for now
+            //This makes it so new users don't need to change their passwords
             if ("NEW_PASSWORD_REQUIRED".equals(continuation.getChallengeName())) {
                 NewPasswordContinuation newPasswordContinuation = (NewPasswordContinuation) continuation;
                 newPasswordContinuation.setPassword(userPassword);

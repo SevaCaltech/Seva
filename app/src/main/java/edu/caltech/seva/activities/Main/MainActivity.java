@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         isConnected = (activeNetwork != null && activeNetwork.isConnected());
         if (!isConnected && !prefManager.isGuest()) {
-            Toast.makeText(this,"No Network Connection..", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"No Network Connection..", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -67,4 +67,22 @@
         android:textColor="@color/secondary_text"
         android:textSize="16sp" />
 
+    <Button
+        android:id="@+id/take_picture_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/picture_button_text"
+        android:minHeight="0dp"
+        android:paddingTop="11dp"
+        android:paddingBottom="9dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:background="@color/accent"
+        android:visibility="gone"
+        android:textColor="@android:color/white"
+        />
+
 </RelativeLayout>

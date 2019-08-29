@@ -34,6 +34,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cognitoidentity.model.NotAuthorizedException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.gson.JsonObject;
@@ -60,14 +61,10 @@ public class TestFragment extends Fragment implements View.OnClickListener {
 
     DynamoDBMapper dynamoDBMapper;
     PrefManager prefManager;
-    AmazonS3Client s3Client;
-    private static final int TAKE_PICTURE = 1;
     private static final String ERROR_CODE = "ERROR_CODE";
     private static final String TOILET_IP = "TOILET_ID";
     private static final String TIMESTAMP = "TIMESTAMP";
     String errorCode, toiletIP, timestamp;
-    private Uri imageUri;
-    private File f;
 
     public TestFragment() {
 
@@ -95,10 +92,8 @@ public class TestFragment extends Fragment implements View.OnClickListener {
         }
         Button testButton = (Button) rootView.findViewById(R.id.testButton);
         Button doneButton = (Button) rootView.findViewById(R.id.doneButton);
-        Button pictureButton = (Button) rootView.findViewById(R.id.pictureButton);
         testButton.setOnClickListener(this);
         doneButton.setOnClickListener(this);
-        pictureButton.setOnClickListener(this);
 
         Bundle arguments = getArguments();
         errorCode = arguments.getString(ERROR_CODE);
@@ -115,7 +110,6 @@ public class TestFragment extends Fragment implements View.OnClickListener {
                     .dynamoDBClient(dynamoDBClient)
                     .awsConfiguration(configuration)
                     .build();
-            s3Client = new AmazonS3Client(credentialsProvider);
         }
 
         return rootView;
@@ -127,78 +121,15 @@ public class TestFragment extends Fragment implements View.OnClickListener {
             case R.id.testButton:
                 ((RepairActivity)getActivity()).testSystem();
                 break;
-            case R.id.pictureButton:
-                takePhoto();
-                break;
             case R.id.doneButton:
-                ((RepairActivity)getActivity()).timeEnded = System.currentTimeMillis();
-                ((RepairActivity)getActivity()).logEvent();
+                if(((RepairActivity)getActivity()).isConnected){
+                    ((RepairActivity)getActivity()).timeEnded = System.currentTimeMillis();
+                    ((RepairActivity)getActivity()).logEvent();
+                }
                 Toast.makeText(getActivity(), "Marked as done..", Toast.LENGTH_SHORT).show();
                 prefManager.setCurrentJob(null);
                 completeRepair(errorCode, toiletIP, timestamp);
                 break;
-        }
-    }
-
-    public void takePhoto(){
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
-        f = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        startActivityForResult(intent, TAKE_PICTURE);
-    }
-
-    public void uploadPhoto(){
-        //check guest mode?
-        String fileName = prefManager.getUsername() + "/" + toiletIP + "/" + errorCode + "-" + System.currentTimeMillis();
-
-        TransferUtility transferUtility = TransferUtility.builder()
-                .context(getContext().getApplicationContext())
-                .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
-                .s3Client(s3Client)
-                .build();
-        TransferObserver observer = transferUtility.upload(fileName + ".jpg",f);
-        observer.setTransferListener(new TransferListener() {
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                Log.d("log", "onStateChanged: " + state.name());
-                if(TransferState.COMPLETED == state) {
-                    Toast.makeText(getContext(), "Upload Completed!", Toast.LENGTH_SHORT).show();
-                    Log.d("log", "upload completed");
-                    f.delete();
-                } else if (TransferState.FAILED == state) {
-                    Log.d("log", "upload failed");
-                    f.delete();
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
-                int percentDone = (int)percentDonef;
-
-                Log.d("YourActivity", "ID:" + id + " bytesCurrent: " + bytesCurrent
-                        + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-                Log.d("log",ex.toString());
-            }
-        });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case TAKE_PICTURE:
-                if(resultCode == Activity.RESULT_OK) {
-                    uploadPhoto();
-                }
         }
     }
 
@@ -209,14 +140,18 @@ public class TestFragment extends Fragment implements View.OnClickListener {
         dbHelper.deleteError(errorCode, toiletIP, database);
         dbHelper.close();
 
-        if(!prefManager.isGuest()) {
+        if(!prefManager.isGuest() && ((RepairActivity)getActivity()).isConnected) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final ToiletsDO toilet = new ToiletsDO();
-                    toilet.setDeviceId("aws/things/" + toiletIP);
-                    toilet.setTimestamp(timestamp);
-                    dynamoDBMapper.delete(toilet);
+                    try {
+                        final ToiletsDO toilet = new ToiletsDO();
+                        toilet.setDeviceId("aws/things/" + toiletIP);
+                        toilet.setTimestamp(timestamp);
+                        dynamoDBMapper.delete(toilet);
+                    }catch (NotAuthorizedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }).start();
         }

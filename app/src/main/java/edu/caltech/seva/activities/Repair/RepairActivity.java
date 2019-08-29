@@ -1,9 +1,14 @@
 package edu.caltech.seva.activities.Repair;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
@@ -64,6 +69,14 @@ public class RepairActivity extends AppCompatActivity {
     LambdaInvokerFactory factory;
     public static PinpointManager pinpointManager;
     public Long timeStarted, timeEnded;
+    public boolean isConnected;
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateNetworkState();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +104,17 @@ public class RepairActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mPager);
 
         timeStarted = System.currentTimeMillis();
-        if (!prefManager.isGuest())
+        if (!prefManager.isGuest() && isConnected)
             initializeAWS();
+    }
+
+    public void updateNetworkState() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        isConnected = (activeNetwork != null && activeNetwork.isConnected());
+        if (!isConnected && !prefManager.isGuest()) {
+            Toast.makeText(this,"No Network Connection..", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void initializeAWS(){
@@ -131,16 +153,17 @@ public class RepairActivity extends AppCompatActivity {
         try {
             long seconds_diff = (timeEnded - timeStarted) / 1000;
             Log.d("log", "[" + repairData.getRepairCode() + "] repair time (seconds): " + seconds_diff);
-            final AnalyticsEvent event =
-                    pinpointManager.getAnalyticsClient().createEvent("RepairDone")
-                            .withAttribute("repairCode", repairData.getRepairCode())
-                            .withMetric("seconds_to_complete", (double) seconds_diff);
+            if(pinpointManager != null){
+                final AnalyticsEvent event =
+                        pinpointManager.getAnalyticsClient().createEvent("RepairDone")
+                                .withAttribute("repairCode", repairData.getRepairCode())
+                                .withMetric("seconds_to_complete", (double) seconds_diff);
 
-            pinpointManager.getAnalyticsClient().recordEvent(event);
-            pinpointManager.getAnalyticsClient().submitEvents();
+                pinpointManager.getAnalyticsClient().recordEvent(event);
+                pinpointManager.getAnalyticsClient().submitEvents();
+            }
         } catch (AmazonClientException e){
             e.printStackTrace();
-//            Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -187,11 +210,9 @@ public class RepairActivity extends AppCompatActivity {
                     startActivity(callIntent);
                 }
                 return true;
-            case R.id.search_option:
-                Toast.makeText(this,"Search selected..", Toast.LENGTH_SHORT).show();
-                return true;
             case R.id.test_option:
-                testSystem();
+                if(isConnected)
+                    testSystem();
                 return true;
             case R.id.directions_option:
                 String directions = "http://maps.google.com/maps?daddr={0},{1}";
@@ -206,13 +227,24 @@ public class RepairActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+        updateNetworkState();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
+        if(isConnected && pinpointManager !=null){
             pinpointManager.getSessionClient().stopSession();
             pinpointManager.getAnalyticsClient().submitEvents();
-        }catch (AmazonClientException e){
-            e.printStackTrace();
         }
     }
 

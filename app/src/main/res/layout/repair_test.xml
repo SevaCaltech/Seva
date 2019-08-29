@@ -23,23 +23,6 @@
         android:background="@color/accent"/>
 
     <Button
-        android:id="@+id/pictureButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/picture_button_text"
-        android:textColor="@color/icons"
-        android:elevation="10dp"
-        android:minHeight="0dp"
-        android:paddingTop="11dp"
-        android:paddingBottom="9dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/accent"
-        />
-
-    <Button
         android:id="@+id/doneButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
