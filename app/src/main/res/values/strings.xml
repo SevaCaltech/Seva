@@ -51,12 +51,6 @@
     <string name="language_option_text">Display language</string>
     <string name="audio_option_text">Audio settings</string>
     <string name="logout_option_text">Logout</string>
-    <string-array name="languages">
-        <item>English</item>
-        <item>Spanish</item>
-        <item>French</item>
-        <item>Chinese</item>
-    </string-array>
 
     <!--toilets fragment-->
     <string name="status_text">Status:</string>
@@ -84,5 +78,29 @@
     <string name="confirm_button_text">CONFIRM ARRIVAL</string>
     <string name="directions_option_text">Directions</string>
     <string name="picture_button_text">TAKE PICTURE</string>
+
+    <!--language settings-->
+    <string name="more_button_text">MORE</string>
+    <string-array name="languages">
+        <item>English</item>
+        <item>हिंदी</item>
+        <item>বাঙালি</item>
+        <item>తెలుగు</item>
+        <item>मराठी</item>
+        <item>தமிழ்</item>
+        <item>اردو</item>
+        <item>ಕನ್ನಡ</item>
+        <item>ગુજરાતી</item>
+    </string-array>
+
+    <string name="english">English</string>
+    <string name="hindi">हिंदी</string>
+    <string name="bengali">বাঙালি</string>
+    <string name="telugu">తెలుగు</string>
+    <string name="marathi">मराठी</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="urdu">اردو</string>
+    <string name="kannada">ಕನ್ನಡ</string>
+    <string name="gujarati">ગુજરાતી</string>
 
 </resources>

@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,7 +97,7 @@ public class TabFragment extends Fragment {
         ImageView display_stepPic = (ImageView) rootView.findViewById(R.id.stepPic);
         TextView display_stepText = (TextView) rootView.findViewById(R.id.stepText);
         TextView display_stepInfo = (TextView) rootView.findViewById(R.id.stepInfo);
-        ImageView display_stepSymbol = (ImageView) rootView.findViewById(R.id.stepSymbol);
+//        ImageView display_stepSymbol = (ImageView) rootView.findViewById(R.id.stepSymbol);
         ImageView speech = (ImageView) rootView.findViewById(R.id.speechButton);
         Button takePictureButton = (Button) rootView.findViewById(R.id.take_picture_button);
 
@@ -108,16 +109,18 @@ public class TabFragment extends Fragment {
         display_stepPic.setImageResource(picID);
         display_stepText.setText(directions);
         display_stepInfo.setText("Tools : " + repairSteps.get(position).getStepInfo());
-        display_stepSymbol.setImageResource(symbolID);
+//        display_stepSymbol.setImageResource(symbolID);
 
         if (directions.equals("Take a picture")){
             takePictureButton.setVisibility(View.VISIBLE);
+            display_stepPic.requestLayout();
+            int height_dp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 334, getResources().getDisplayMetrics());
+            display_stepPic.getLayoutParams().height = height_dp;
         }
 
         if(!prefManager.isGuest()){
             AWSMobileClient.getInstance().initialize(getContext()).execute();
             AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
-//            AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
             s3Client = new AmazonS3Client(credentialsProvider);
         }
 

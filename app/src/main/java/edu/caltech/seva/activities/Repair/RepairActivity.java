@@ -38,6 +38,7 @@ import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
 import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.amazonaws.mobileconnectors.pinpoint.analytics.AnalyticsEvent;
+import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.google.gson.JsonObject;
 
@@ -104,6 +105,8 @@ public class RepairActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mPager);
 
         timeStarted = System.currentTimeMillis();
+        updateNetworkState();
+        Log.d("log","guest: " + prefManager.isGuest() + " isConnected: "+ isConnected);
         if (!prefManager.isGuest() && isConnected)
             initializeAWS();
     }
@@ -118,22 +121,12 @@ public class RepairActivity extends AppCompatActivity {
     }
 
     public void initializeAWS(){
+        Log.d("log", "Initializing AWS...");
         AWSMobileClient.getInstance().initialize(this).execute();
         AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
         AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
-
-        IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
-        try {
-            JSONObject cognitoObj = identityManager.getConfiguration().optJsonObject("CredentialsProvider");
-            JSONObject myJSON = cognitoObj.getJSONObject("CognitoIdentity").getJSONObject("Default");
-            final String IDENTITY_POOL_ID = myJSON.getString("PoolId");
-            final String REGION = myJSON.getString("Region");
-            factory = new LambdaInvokerFactory(this.getApplicationContext(),
-                    Regions.fromName(REGION), credentialsProvider);
-            lambdaInterface = factory.build(LambdaInterface.class);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        factory = new LambdaInvokerFactory(this.getApplicationContext(), Regions.fromName("us-east-1"), credentialsProvider);
+        lambdaInterface = factory.build(LambdaInterface.class);
 
         PinpointConfiguration config = new PinpointConfiguration(this, credentialsProvider, configuration);
         pinpointManager = new PinpointManager(config);

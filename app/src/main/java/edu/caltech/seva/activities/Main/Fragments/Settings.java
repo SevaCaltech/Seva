@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,18 +45,29 @@ public class Settings extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+        Fragment fragment = null;
+        String fragment_tag= "";
+
         switch (view.getId()){
             case R.id.languageSettings:
-                LanguageDialog languageDialog = new LanguageDialog();
-                languageDialog.show(getFragmentManager(),"language_settings");
+                fragment = Language.newInstance(0);
+                fragment_tag = "written_language";
                 break;
             case R.id.audioSettings:
-                languageDialog = new LanguageDialog();
-                languageDialog.show(getFragmentManager(),"language_settings");
+                fragment = Language.newInstance(1);
+                fragment_tag = "audio_language";
                 break;
             case R.id.logout:
                 ((MainActivity)getActivity()).logout();
                 break;
+        }
+
+        if(fragment != null) {
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.replace(R.id.screen_area,fragment, fragment_tag);
+            ft.addToBackStack(null);
+            ft.commit();
         }
     }
 }

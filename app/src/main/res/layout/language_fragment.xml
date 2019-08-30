@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.Main.MainActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/icons">
+
+    <View
+        android:id="@+id/textpannel"
+        android:layout_width="match_parent"
+        android:layout_height="93dp"
+        android:background="@color/colorPrimaryTransparent"/>
+
+    <TextView
+        android:id="@+id/top_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="@color/primary_text"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"/>
+
+    <GridView
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="26dp"
+        android:id="@+id/languageGrid"
+        android:layout_below="@id/textpannel"
+        android:layout_above="@id/more_button"
+        android:gravity="center"
+        android:numColumns="3"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="18dp"
+        android:verticalSpacing="18dp"
+        android:clipChildren="true"
+        android:stretchMode="columnWidth"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </GridView>
+
+    <Button
+        android:id="@+id/more_button"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/icons"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/colorPrimary"
+        android:text="More"
+        android:elevation="0dp"
+        android:layout_marginBottom="16dp"/>
+
+</RelativeLayout>
