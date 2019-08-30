@@ -6,6 +6,8 @@
 - Finish Take Picture function in the Repair guides
     - add a column to the SQLite db which step(s) the picture button should pop up on
 - Populate all of the repair guides
+- Better support for different sized screens
+    - noticeable in repair guides and language settings
 - Push Notifications
 - Don't need to add alive signals to SevaToilets Dynamo table
     - This happens because the current lambda will add any IoT message on the toilet topic to the table.
