@@ -1,10 +1,8 @@
 package edu.caltech.seva.activities.Main;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -25,19 +23,19 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
-import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.google.gson.Gson;
+
+import java.util.Set;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Login.LoginActivity;
-import edu.caltech.seva.activities.Main.Fragments.Home;
+import edu.caltech.seva.activities.Main.Fragments.Home.Home;
 import edu.caltech.seva.activities.Main.Fragments.Notifications;
 import edu.caltech.seva.activities.Main.Fragments.Settings;
-import edu.caltech.seva.activities.Main.Fragments.Toilets;
+import edu.caltech.seva.activities.Main.Fragments.Toilets.Toilets;
 import edu.caltech.seva.activities.Repair.RepairActivity;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
@@ -45,8 +43,9 @@ import edu.caltech.seva.models.RepairActivityData;
 
 //This is the main activity for the app which contains the nav drawer and its fragments
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, MainViewI {
 
+    private MainPresenter presenter;
     public boolean isConnected;
     FragmentTransaction fragmentTransaction;
     public String currentFragmentTag;
@@ -74,6 +73,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefManager = new PrefManager(this);
+
+        //presenter
+        presenter = new MainPresenter(this, null);
 
         //sets up toolbar
         setContentView(R.layout.activity_main);
@@ -141,18 +143,17 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_job:
                 Gson gson = new Gson();
                 String json = prefManager.getCurrentJob();
-                if (json != null){
+                if (json != null) {
                     RepairActivityData currentJob = gson.fromJson(json, RepairActivityData.class);
                     Intent intent = new Intent(this, RepairActivity.class);
                     intent.putExtra("RepairData", currentJob);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                }
-                else
+                } else
                     Toast.makeText(this, "No current job..", Toast.LENGTH_SHORT).show();
-                    item.setChecked(false);
-                    navigationView.setCheckedItem(R.id.nav_home);
+                item.setChecked(false);
+                navigationView.setCheckedItem(R.id.nav_home);
                 break;
 
             case R.id.nav_notifications:
@@ -167,7 +168,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_help:
                 final String helpNumber = "555-555-5555";
-                if(ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED)
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED)
                     Toast.makeText(this, "Check app permissions..", Toast.LENGTH_SHORT).show();
                 else {
                     Intent callIntent = new Intent(Intent.ACTION_CALL);
@@ -195,15 +196,15 @@ public class MainActivity extends AppCompatActivity
         return this.getSupportFragmentManager().findFragmentById(R.id.screen_area);
     }
 
-    public void checkAppPermissions(){
-        if (!hasPermissions(this,PERMISSIONS))
-            ActivityCompat.requestPermissions(this, PERMISSIONS,1);
+    public void checkAppPermissions() {
+        if (!hasPermissions(this, PERMISSIONS))
+            ActivityCompat.requestPermissions(this, PERMISSIONS, 1);
     }
 
-    public static boolean hasPermissions(Context context, String... permissions){
-        if(context != null && permissions != null){
-            for (String permission: permissions){
-                if(ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
                     return false;
             }
         }
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         isConnected = (activeNetwork != null && activeNetwork.isConnected());
         if (!isConnected && !prefManager.isGuest()) {
-            Toast.makeText(this,"No Network Connection..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No Network Connection..", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -252,5 +253,20 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    public void displayToilets(Set<String> toilets) {
+        //do nothing
+    }
+
+    @Override
+    public void displayNoToilets() {
+        //do nothing
+    }
+
+    @Override
+    public void displayError() {
+        //show toast for example but do nothing for now
     }
 }

@@ -90,6 +90,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
     }
+
     private void userLogin() {
         final String username = editUsername.getText().toString().trim();
         final String password = editPassword.getText().toString().trim();

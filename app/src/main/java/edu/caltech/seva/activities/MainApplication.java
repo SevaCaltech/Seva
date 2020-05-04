@@ -9,8 +9,19 @@ import com.squareup.leakcanary.RefWatcher;
 
 public class MainApplication extends Application {
     private RefWatcher refWatcher;
+    private static MainApplication instance;
+
+    public static MainApplication getInstance() {
+        return instance;
+    }
+
+    public static Context getContext() {
+        return instance;
+    }
+
     @Override
     public void onCreate() {
+        instance = this;
         super.onCreate();
 //        if (LeakCanary.isInAnalyzerProcess(this)){
 //            return;
