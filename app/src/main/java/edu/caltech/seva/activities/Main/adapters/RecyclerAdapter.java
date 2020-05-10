@@ -40,8 +40,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     private final int SORT_RECENT = 0;
     private final int SORT_OLDEST = 1;
 
-    public RecyclerAdapter(Context context, ArrayList<IncomingError> incomingErrors) {
-        this.errorList = incomingErrors;
+    public RecyclerAdapter(Context context) {
+        this.errorList = new ArrayList<>();
         this.filtered = errorList;
         this.context = context;
     }
@@ -102,6 +102,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             holder.gMap.clear();
             holder.gMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         }
+    }
+
+    public void add(IncomingError error) {
+        this.errorList.add(error);
+    }
+
+    public void clearAdapter() {
+        this.errorList.clear();
     }
 
     public void removeNotification(int position, int id) {

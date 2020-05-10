@@ -10,7 +10,7 @@ import edu.caltech.seva.models.Toilet;
  * Interface for the Toilets Fragment which defines the necessary operations for both the View and
  * Presenter.
  */
-public interface ToiletsContract {
+public class ToiletsContract {
 
     /**
      * Contract for the Toilets Fragment view. Defines visual operations used by the presenter.

@@ -72,12 +72,12 @@ public class TitleFragment extends Fragment {
         setHasOptionsMenu(true);
 
         //sets text to repairInfo from db
-        TextView display_repairTitle = (TextView) rootView.findViewById(R.id.repairTitle);
-        TextView display_totalSteps = (TextView) rootView.findViewById(R.id.totalSteps);
-        TextView display_totalTime = (TextView) rootView.findViewById(R.id.totalTime);
-        TextView display_toolInfo = (TextView) rootView.findViewById(R.id.toolInfo);
-        TextView display_errorCode = (TextView) rootView.findViewById(R.id.errorCode);
-        Button confirm_button  = (Button) rootView.findViewById(R.id.confirm_location_button);
+        TextView display_repairTitle = rootView.findViewById(R.id.repairTitle);
+        TextView display_totalSteps = rootView.findViewById(R.id.totalSteps);
+        TextView display_totalTime = rootView.findViewById(R.id.totalTime);
+        TextView display_toolInfo = rootView.findViewById(R.id.toolInfo);
+        TextView display_errorCode = rootView.findViewById(R.id.errorCode);
+        Button confirm_button  = rootView.findViewById(R.id.confirm_location_button);
 
         display_repairTitle.setText(repairTitle);
         display_toolInfo.setText(toolInfo);

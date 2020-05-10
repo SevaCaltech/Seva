@@ -22,10 +22,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.AWSStartupHandler;
+import com.amazonaws.mobile.client.AWSStartupResult;
 import com.google.gson.Gson;
 
 import java.util.Set;
@@ -33,10 +37,11 @@ import java.util.Set;
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Login.LoginActivity;
 import edu.caltech.seva.activities.Main.Fragments.Home.Home;
-import edu.caltech.seva.activities.Main.Fragments.Notifications;
-import edu.caltech.seva.activities.Main.Fragments.Settings;
+import edu.caltech.seva.activities.Main.Fragments.Notifications.Notifications;
+import edu.caltech.seva.activities.Main.Fragments.Settings.Settings;
 import edu.caltech.seva.activities.Main.Fragments.Toilets.Toilets;
 import edu.caltech.seva.activities.Repair.RepairActivity;
+import edu.caltech.seva.activities.Splashscreen.SplashActivity;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.RepairActivityData;
@@ -48,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     private MainPresenter presenter;
     public boolean isConnected;
     FragmentTransaction fragmentTransaction;
-    public String currentFragmentTag;
+    private String currentFragmentTag;
     Toolbar toolbar;
     NavigationView navigationView;
     PrefManager prefManager;
@@ -76,10 +81,11 @@ public class MainActivity extends AppCompatActivity
 
         //presenter
         presenter = new MainPresenter(this, null);
+        AWSMobileClient.getInstance().initialize(this).execute();
 
         //sets up toolbar
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Home");
 
@@ -119,7 +125,7 @@ public class MainActivity extends AppCompatActivity
     //if the back button is pressed and the drawer is open it will close
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -185,15 +191,24 @@ public class MainActivity extends AppCompatActivity
             ft.replace(R.id.screen_area, fragment, fragment_tag);
             ft.addToBackStack(null);
             ft.commit();
+            Log.d("fragment_tag", "current: " + currentFragmentTag);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     public Fragment getCurrentFragment() {
         return this.getSupportFragmentManager().findFragmentById(R.id.screen_area);
+    }
+
+    public void setCurrentFragmentTag(String fragmentTag) {
+        this.currentFragmentTag = fragmentTag;
+    }
+
+    public String getCurrentFragmentTag() {
+        return this.currentFragmentTag;
     }
 
     public void checkAppPermissions() {
@@ -217,10 +232,10 @@ public class MainActivity extends AppCompatActivity
         DbHelper dbHelper = new DbHelper(this);
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.clearNotifications(database);
+        dbHelper.close();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        dbHelper.close();
         finish();
     }
 
@@ -241,12 +256,20 @@ public class MainActivity extends AppCompatActivity
 
         //make sure checked item is correct
         Fragment current = getCurrentFragment();
-        if (current instanceof Home || current instanceof Toilets)
+        if (current instanceof Home) {
             navigationView.setCheckedItem(R.id.nav_home);
-        else if (current instanceof Notifications)
+            currentFragmentTag = "HOME";
+        } else if (current instanceof Toilets) {
+            navigationView.setCheckedItem(R.id.nav_home);
+            currentFragmentTag = "TOILETS";
+        } else if (current instanceof Notifications) {
             navigationView.setCheckedItem(R.id.nav_notifications);
-        else if (current instanceof Settings)
+            currentFragmentTag = "NOTIFICATIONS";
+
+        } else if (current instanceof Settings) {
             navigationView.setCheckedItem(R.id.nav_settings);
+            currentFragmentTag = "SETTTINGS";
+        }
     }
 
     @Override

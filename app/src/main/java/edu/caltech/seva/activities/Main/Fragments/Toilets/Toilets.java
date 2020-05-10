@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.MainActivity;
@@ -81,6 +82,8 @@ public class Toilets extends Fragment implements ToiletsContract.View {
         }
 
         getActivity().setTitle("My Toilets");
+        ((MainActivity) Objects.requireNonNull(getActivity())).setCurrentFragmentTag("TOILETS");
+
 
         prefManager = new PrefManager(getContext());
         if (prefManager.getToilets() == null || prefManager.isGuest()) {

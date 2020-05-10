@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ import android.widget.TextView;
 import java.util.Objects;
 
 import edu.caltech.seva.R;
-import edu.caltech.seva.activities.Main.Fragments.Notifications;
+import edu.caltech.seva.activities.Main.Fragments.Notifications.Notifications;
 import edu.caltech.seva.activities.Main.Fragments.Toilets.Toilets;
 import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.helpers.DbContract;
@@ -62,6 +63,9 @@ public class Home extends Fragment implements View.OnClickListener, HomeContract
         notificationCard = rootView.findViewById(R.id.notification_card);
 
         Objects.requireNonNull(getActivity()).setTitle("Home");
+        ((MainActivity) Objects.requireNonNull(getActivity())).setCurrentFragmentTag("HOME");
+        Log.d("fragment_tag", "current: " + ((MainActivity) Objects.requireNonNull(getActivity())).getCurrentFragmentTag());
+
         toiletCard.setOnClickListener(this);
         notificationCard.setOnClickListener(this);
 
@@ -118,7 +122,8 @@ public class Home extends Fragment implements View.OnClickListener, HomeContract
             ft.replace(R.id.screen_area, fragment, fragment_tag);
             ft.addToBackStack(null);
             ft.commit();
-            ((MainActivity) Objects.requireNonNull(getActivity())).currentFragmentTag = fragment_tag;
+            ((MainActivity) Objects.requireNonNull(getActivity())).setCurrentFragmentTag(fragment_tag);
+            Log.d("fragment_tag", "current: " + ((MainActivity) Objects.requireNonNull(getActivity())).getCurrentFragmentTag());
         }
     }
 

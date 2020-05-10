@@ -90,8 +90,8 @@ public class TestFragment extends Fragment implements View.OnClickListener {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        Button testButton = (Button) rootView.findViewById(R.id.testButton);
-        Button doneButton = (Button) rootView.findViewById(R.id.doneButton);
+        Button testButton = rootView.findViewById(R.id.testButton);
+        Button doneButton = rootView.findViewById(R.id.doneButton);
         testButton.setOnClickListener(this);
         doneButton.setOnClickListener(this);
 

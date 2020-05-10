@@ -37,6 +37,38 @@ public class AWSLoginModel {
     private CognitoUser mCognitoUser;
     private PrefManager prefManager;
 
+    public AWSLoginModel(Context context, AWSLoginHandler callback) {
+        mContext = context;
+        mCallback = callback;
+        prefManager = new PrefManager(mContext);
+        IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
+        try{
+            JSONObject myJSON = identityManager.getConfiguration().optJsonObject("CognitoUserPool");
+            final String COGNITO_POOL_ID = myJSON.getString("PoolId");
+            final String COGNITO_CLIENT_ID = myJSON.getString("AppClientId");
+            final String COGNITO_CLIENT_SECRET = myJSON.getString("AppClientSecret");
+            final String REGION = myJSON.getString("Region");
+            mCognitoUserPool = new CognitoUserPool(context, COGNITO_POOL_ID, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET, Regions.fromName(REGION));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void signInUser(String userName, String userPassword){
+        this.userName = userName;
+        this.userPassword = userPassword;
+        mCognitoUser = mCognitoUserPool.getUser(userName);
+        mCognitoUser.getSessionInBackground(authenticationHandler);
+    }
+
+    public void signInGuest() {
+        this.userName = "Guest";
+        this.userPassword = "";
+        prefManager.setUsername(userName);
+        prefManager.setIsGuest(true);
+        mCallback.onSignInSuccess();
+    }
+
     private final AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
         public void onSuccess(CognitoUserSession userSession, CognitoDevice newDevice) {
@@ -89,36 +121,4 @@ public class AWSLoginModel {
             mCallback.onFailure(exception);
         }
     };
-
-    public AWSLoginModel(Context context, AWSLoginHandler callback) {
-        mContext = context;
-        mCallback = callback;
-        prefManager = new PrefManager(mContext);
-        IdentityManager identityManager = IdentityManager.getDefaultIdentityManager();
-        try{
-            JSONObject myJSON = identityManager.getConfiguration().optJsonObject("CognitoUserPool");
-            final String COGNITO_POOL_ID = myJSON.getString("PoolId");
-            final String COGNITO_CLIENT_ID = myJSON.getString("AppClientId");
-            final String COGNITO_CLIENT_SECRET = myJSON.getString("AppClientSecret");
-            final String REGION = myJSON.getString("Region");
-            mCognitoUserPool = new CognitoUserPool(context, COGNITO_POOL_ID, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET, Regions.fromName(REGION));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void signInUser(String userName, String userPassword){
-        this.userName = userName;
-        this.userPassword = userPassword;
-        mCognitoUser = mCognitoUserPool.getUser(userName);
-        mCognitoUser.getSessionInBackground(authenticationHandler);
-    }
-
-    public void signInGuest() {
-        this.userName = "Guest";
-        this.userPassword = "";
-        prefManager.setUsername(userName);
-        prefManager.setIsGuest(true);
-        mCallback.onSignInSuccess();
-    }
 }

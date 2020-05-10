@@ -1,4 +1,4 @@
-package edu.caltech.seva.activities.Main.Fragments;
+package edu.caltech.seva.activities.Main.Fragments.Notifications;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

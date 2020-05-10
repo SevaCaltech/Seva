@@ -53,6 +53,7 @@ import java.util.Date;
 import edu.caltech.seva.R;
 import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.activities.Repair.adapters.MyPagerAdapter;
+import edu.caltech.seva.activities.Repair.fragments.RepairPresenter;
 import edu.caltech.seva.activities.Repair.fragments.TabFragment;
 import edu.caltech.seva.activities.Repair.fragments.TestFragment;
 import edu.caltech.seva.activities.Repair.fragments.TitleFragment;
@@ -62,13 +63,15 @@ import edu.caltech.seva.models.LambdaTriggerInfo;
 import edu.caltech.seva.models.RepairActivityData;
 
 public class RepairActivity extends AppCompatActivity {
+    //utility helpers
+    private PrefManager prefManager;
+    private ViewPager mPager;
+    private LambdaInterface lambdaInterface;
+    private LambdaInvokerFactory factory;
+    private static PinpointManager pinpointManager;
 
-    PrefManager prefManager;
-    ViewPager mPager;
-    RepairActivityData repairData;
-    LambdaInterface lambdaInterface;
-    LambdaInvokerFactory factory;
-    public static PinpointManager pinpointManager;
+    //data objects
+    private RepairActivityData repairData;
     public Long timeStarted, timeEnded;
     public boolean isConnected;
 
@@ -94,13 +97,13 @@ public class RepairActivity extends AppCompatActivity {
         //sets up new activity toolbar and tab layout
         setContentView(R.layout.activity_repair);
         mAdapter = new MyPagerAdapter(getSupportFragmentManager(),repairData);
-        mToolbar = (Toolbar) findViewById(R.id.app_bar);
+        mToolbar = findViewById(R.id.app_bar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         mToolbar.setTitle("Repair Guide");
-        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        mPager = (ViewPager) findViewById(R.id.pager);
+        mTabLayout = findViewById(R.id.tab_layout);
+        mPager = findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mPager);
 
@@ -111,7 +114,7 @@ public class RepairActivity extends AppCompatActivity {
             initializeAWS();
     }
 
-    public void updateNetworkState() {
+    private void updateNetworkState() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         isConnected = (activeNetwork != null && activeNetwork.isConnected());
@@ -120,7 +123,7 @@ public class RepairActivity extends AppCompatActivity {
         }
     }
 
-    public void initializeAWS(){
+    private void initializeAWS(){
         Log.d("log", "Initializing AWS...");
         AWSMobileClient.getInstance().initialize(this).execute();
         AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();

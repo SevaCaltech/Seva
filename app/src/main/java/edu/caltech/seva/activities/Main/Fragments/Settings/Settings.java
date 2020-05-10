@@ -1,8 +1,5 @@
-package edu.caltech.seva.activities.Main.Fragments;
+package edu.caltech.seva.activities.Main.Fragments.Settings;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,27 +11,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobile.auth.core.IdentityManager;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
+import java.util.Objects;
 
 import edu.caltech.seva.R;
-import edu.caltech.seva.activities.Login.LoginActivity;
 import edu.caltech.seva.activities.Main.MainActivity;
-import edu.caltech.seva.helpers.DbHelper;
-import edu.caltech.seva.helpers.PrefManager;
 
-//the settings fragment which the user can change language/audio settings
+/**
+ * The settings fragment which the user can change language/audio settings, and sign out of the app.
+ */
 public class Settings extends Fragment implements View.OnClickListener {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_settings,null);
+        View rootView = inflater.inflate(R.layout.activity_settings, null);
         getActivity().setTitle("Settings");
-        LinearLayout language = (LinearLayout) rootView.findViewById(R.id.languageSettings);
-        LinearLayout audio = (LinearLayout) rootView.findViewById(R.id.audioSettings);
-        LinearLayout logout = (LinearLayout) rootView.findViewById(R.id.logout);
+        ((MainActivity) Objects.requireNonNull(getActivity())).setCurrentFragmentTag("SETTINGS");
+
+        LinearLayout language = rootView.findViewById(R.id.languageSettings);
+        LinearLayout audio = rootView.findViewById(R.id.audioSettings);
+        LinearLayout logout = rootView.findViewById(R.id.logout);
 
         language.setOnClickListener(this);
         audio.setOnClickListener(this);
@@ -46,9 +42,9 @@ public class Settings extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         Fragment fragment = null;
-        String fragment_tag= "";
+        String fragment_tag = "";
 
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.languageSettings:
                 fragment = Language.newInstance(0);
                 fragment_tag = "written_language";
@@ -58,14 +54,14 @@ public class Settings extends Fragment implements View.OnClickListener {
                 fragment_tag = "audio_language";
                 break;
             case R.id.logout:
-                ((MainActivity)getActivity()).logout();
+                ((MainActivity) getActivity()).logout();
                 break;
         }
 
-        if(fragment != null) {
+        if (fragment != null) {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.screen_area,fragment, fragment_tag);
+            ft.replace(R.id.screen_area, fragment, fragment_tag);
             ft.addToBackStack(null);
             ft.commit();
         }

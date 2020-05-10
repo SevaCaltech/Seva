@@ -89,9 +89,9 @@ public class DbHelper extends SQLiteAssetHelper{
         return (database.query(DbContract.TOILET_INFO_TABLE,projection,selection,null,null,null,null));
     }
 
-    public Cursor readStep(SQLiteDatabase database, String repairCode){
+    public Cursor readStep(SQLiteDatabase database, String repairCode, String[] stepNum){
         String[] projection = {DbContract.STEP_NUM,DbContract.STEP_PIC,DbContract.STEP_TEXT,DbContract.STEP_INFO,DbContract.STEP_SYMBOL};
-        return (database.query("'"+DbContract.REPAIR_TABLE+repairCode+"'",projection,null,null,null,null,null));
+        return (database.query("'"+DbContract.REPAIR_TABLE+repairCode+"'",projection,DbContract.STEP_NUM,stepNum,null,null,null));
     }
 
     public static Cursor readStepCount(SQLiteDatabase database, String errorCode){

@@ -62,7 +62,7 @@ public class HomePresenter implements HomeContract.Presenter {
         if (prefManager.isFirstTimeLaunch() && !prefManager.isGuest()) {
             //initialize dynamodb
             Log.d("log", "Initializing AWS...");
-            AWSMobileClient.getInstance().initialize(MainApplication.getContext()).execute();
+//            AWSMobileClient.getInstance().initialize(MainApplication.getContext()).execute();
             AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
             AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
             AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);

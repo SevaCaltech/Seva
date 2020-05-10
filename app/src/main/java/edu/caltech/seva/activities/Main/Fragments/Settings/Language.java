@@ -1,13 +1,11 @@
-package edu.caltech.seva.activities.Main.Fragments;
+package edu.caltech.seva.activities.Main.Fragments.Settings;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,20 +16,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import edu.caltech.seva.R;
-import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.activities.Main.adapters.LanguageAdapter;
 
-public class Language extends Fragment {
+/**
+ * Represents the Settings fragment that allows the user to change written/audio language, and sign
+ * out of the app.
+ */
+public class Language extends Fragment implements SettingsContract.View {
     private static final String SETTINGS_TYPE = "SETTINGS_TYPE";
     private static final int WRITTEN_SETTINGS = 0;
     private static final int AUDIO_SETTINGS = 1;
     private int settings_type;
+    private TextView top_text;
 
-    public Language(){
-
+    public Language() {
+        //should be empty
     }
 
-    public static Language newInstance(int settings_type){
+    /**
+     * Static constructor for creating the Language Fragment.
+     *
+     * @param settings_type Differentiates the written and audio language fragments
+     * @return a Language fragment
+     */
+    public static Language newInstance(int settings_type) {
         Language fragment = new Language();
         Bundle bundle = new Bundle();
         bundle.putInt(SETTINGS_TYPE, settings_type);
@@ -42,24 +50,26 @@ public class Language extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.language_fragment,null);
-        TextView top_text = (TextView) rootView.findViewById(R.id.top_text);
-        Button moreButton = (Button) rootView.findViewById(R.id.more_button);
+        View rootView = inflater.inflate(R.layout.language_fragment, null);
+        top_text = rootView.findViewById(R.id.top_text);
+        Button moreButton = rootView.findViewById(R.id.more_button);
 
         Bundle arguments = getArguments();
         settings_type = arguments.getInt(SETTINGS_TYPE);
-        if(settings_type == WRITTEN_SETTINGS) {
-            getActivity().setTitle("Set Written Language");
-            top_text.setText("What language do you \nwant to read?");
-        }
-        else {
-            getActivity().setTitle("Set Audio Language");
-            top_text.setText("What do you want to hear \naloud for help?");
+        switch (settings_type) {
+            case WRITTEN_SETTINGS:
+                showWrittenSettings();
+                break;
+            case AUDIO_SETTINGS:
+                showAudioSettings();
+                break;
+            default:
+                throw new RuntimeException("not a valid settings choice");
         }
 
         final String[] languages = getResources().getStringArray(R.array.languages);
-        GridView gridView = (GridView)rootView.findViewById(R.id.languageGrid);
-        final LanguageAdapter adapter = new LanguageAdapter(getContext(),languages);
+        GridView gridView = rootView.findViewById(R.id.languageGrid);
+        final LanguageAdapter adapter = new LanguageAdapter(getContext(), languages);
         gridView.setAdapter(adapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,7 +79,7 @@ public class Language extends Fragment {
 
                 android.support.v7.app.AlertDialog.Builder confirm = new AlertDialog.Builder(getContext());
                 confirm.setTitle(lang_selected);
-                confirm.setMessage("Confirm " + lang_selected + " as the " + ((settings_type == WRITTEN_SETTINGS)? "written ": "audio ") + "language");
+                confirm.setMessage("Confirm " + lang_selected + " as the " + ((settings_type == WRITTEN_SETTINGS) ? "written " : "audio ") + "language");
                 confirm.setNegativeButton("CONFIRM", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -94,5 +104,17 @@ public class Language extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void showWrittenSettings() {
+        getActivity().setTitle("Set Written Language");
+        top_text.setText("What language do you \nwant to read?");
+    }
+
+    @Override
+    public void showAudioSettings() {
+        getActivity().setTitle("Set Audio Language");
+        top_text.setText("What do you want to hear \naloud for help?");
     }
 }
