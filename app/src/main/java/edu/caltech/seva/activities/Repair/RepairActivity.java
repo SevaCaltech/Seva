@@ -96,7 +96,7 @@ public class RepairActivity extends AppCompatActivity {
 
         //sets up new activity toolbar and tab layout
         setContentView(R.layout.activity_repair);
-        mAdapter = new MyPagerAdapter(getSupportFragmentManager(),repairData);
+        mAdapter = new MyPagerAdapter(getSupportFragmentManager(), repairData);
         mToolbar = findViewById(R.id.app_bar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -109,7 +109,7 @@ public class RepairActivity extends AppCompatActivity {
 
         timeStarted = System.currentTimeMillis();
         updateNetworkState();
-        Log.d("log","guest: " + prefManager.isGuest() + " isConnected: "+ isConnected);
+        Log.d("log", "guest: " + prefManager.isGuest() + " isConnected: " + isConnected);
         if (!prefManager.isGuest() && isConnected)
             initializeAWS();
     }
@@ -119,11 +119,11 @@ public class RepairActivity extends AppCompatActivity {
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         isConnected = (activeNetwork != null && activeNetwork.isConnected());
         if (!isConnected && !prefManager.isGuest()) {
-            Toast.makeText(this,"No Network Connection..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No Network Connection..", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void initializeAWS(){
+    private void initializeAWS() {
         Log.d("log", "Initializing AWS...");
         AWSMobileClient.getInstance().initialize(this).execute();
         AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
@@ -136,11 +136,11 @@ public class RepairActivity extends AppCompatActivity {
         pinpointManager.getSessionClient().startSession();
     }
 
-    public void testSystem(){
+    public void testSystem() {
         Toast.makeText(this, "Testing System..", Toast.LENGTH_SHORT).show();
 
         Date timestamp = new Date(System.currentTimeMillis());
-        LambdaTriggerInfo info = new LambdaTriggerInfo(prefManager.getUsername(), timestamp, repairData.getToiletIP(), repairData.getErrorCode() );
+        LambdaTriggerInfo info = new LambdaTriggerInfo(prefManager.getUsername(), timestamp, repairData.getToiletIP(), repairData.getErrorCode());
         LambdaTask lambda = new LambdaTask();
         lambda.execute(info);
     }
@@ -149,7 +149,7 @@ public class RepairActivity extends AppCompatActivity {
         try {
             long seconds_diff = (timeEnded - timeStarted) / 1000;
             Log.d("log", "[" + repairData.getRepairCode() + "] repair time (seconds): " + seconds_diff);
-            if(pinpointManager != null){
+            if (pinpointManager != null) {
                 final AnalyticsEvent event =
                         pinpointManager.getAnalyticsClient().createEvent("RepairDone")
                                 .withAttribute("repairCode", repairData.getRepairCode())
@@ -158,7 +158,7 @@ public class RepairActivity extends AppCompatActivity {
                 pinpointManager.getAnalyticsClient().recordEvent(event);
                 pinpointManager.getAnalyticsClient().submitEvents();
             }
-        } catch (AmazonClientException e){
+        } catch (AmazonClientException e) {
             e.printStackTrace();
         }
     }
@@ -198,7 +198,7 @@ public class RepairActivity extends AppCompatActivity {
 
             case R.id.help_option:
                 final String helpNumber = "555-555-5555";
-                if(ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED)
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED)
                     Toast.makeText(this, "Check app permissions..", Toast.LENGTH_SHORT).show();
                 else {
                     Intent callIntent = new Intent(Intent.ACTION_CALL);
@@ -207,14 +207,13 @@ public class RepairActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.test_option:
-                if(isConnected)
-                    testSystem();
+                testSystem();
                 return true;
             case R.id.directions_option:
                 String directions = "http://maps.google.com/maps?daddr={0},{1}";
                 Object[] args = {repairData.getLat(), repairData.getLng()};
                 MessageFormat msg = new MessageFormat(directions);
-                Intent intent1 = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(msg.format(args)));
+                Intent intent1 = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(msg.format(args)));
                 startActivity(intent1);
                 return true;
             default:
@@ -238,7 +237,7 @@ public class RepairActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(isConnected && pinpointManager !=null){
+        if (isConnected && pinpointManager != null) {
             pinpointManager.getSessionClient().stopSession();
             pinpointManager.getAnalyticsClient().submitEvents();
         }
@@ -248,11 +247,11 @@ public class RepairActivity extends AppCompatActivity {
 
         @Override
         protected JsonObject doInBackground(LambdaTriggerInfo... params) {
-            try{
+            try {
                 Log.d("log", "Sending: \n\tusername: " + params[0].getUsername() +
                         "\n\ttoiletIP: " + params[0].getToiletIP() + "\n\terrorCode: " +
                         params[0].getErrorCode() + "\n\ttimestamp: " + params[0].getTimestamp().toString());
-                return  lambdaInterface.testButtonTriggered(params[0]);
+                return lambdaInterface.testButtonTriggered(params[0]);
             } catch (LambdaFunctionException e) {
                 Log.d("log", "Failed to invoke test lambda", e);
                 return null;
@@ -268,7 +267,7 @@ public class RepairActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Unable to connect to toilet..", Toast.LENGTH_LONG).show();
                 return;
             }
-            String message = result.get("msg").toString().replaceAll("\"","");
+            String message = result.get("msg").toString().replaceAll("\"", "");
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
         }
     }

@@ -13,6 +13,8 @@ import android.util.Log;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
+import java.util.Arrays;
+
 import edu.caltech.seva.R;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.models.ToiletsDO;
@@ -90,8 +92,9 @@ public class DbHelper extends SQLiteAssetHelper{
     }
 
     public Cursor readStep(SQLiteDatabase database, String repairCode, String[] stepNum){
-        String[] projection = {DbContract.STEP_NUM,DbContract.STEP_PIC,DbContract.STEP_TEXT,DbContract.STEP_INFO,DbContract.STEP_SYMBOL};
-        return (database.query("'"+DbContract.REPAIR_TABLE+repairCode+"'",projection,DbContract.STEP_NUM,stepNum,null,null,null));
+        String[] projection = {"*"};
+        String selection = DbContract.STEP_NUM+" = "+stepNum[0];
+        return (database.query("'"+DbContract.REPAIR_TABLE+repairCode+"'",projection,selection,null,null,null,null));
     }
 
     public static Cursor readStepCount(SQLiteDatabase database, String errorCode){

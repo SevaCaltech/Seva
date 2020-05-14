@@ -29,12 +29,10 @@ public class RepairPresenter implements RepairContract.Presenter {
         String stepPic, stepText, stepInfo, stepSymbol;
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
-//            stepNum = cursor.getInt(cursor.getColumnIndex(DbContract.STEP_NUM));
             stepInfo = cursor.getString(cursor.getColumnIndex(DbContract.STEP_INFO));
             stepPic = cursor.getString(cursor.getColumnIndex(DbContract.STEP_PIC));
             stepText = cursor.getString(cursor.getColumnIndex(DbContract.STEP_TEXT));
             stepSymbol = cursor.getString(cursor.getColumnIndex(DbContract.STEP_SYMBOL));
-//                repairSteps.add(new RepairStep(stepNum, stepPic, stepText, stepInfo, stepSymbol));
             RepairStep repairStep = new RepairStep(stepNum, stepPic, stepText, stepInfo, stepSymbol);
             view.showRepairStep(repairStep);
         }

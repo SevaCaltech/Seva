@@ -101,7 +101,7 @@ public class TabFragment extends Fragment implements RepairContract.View {
         String repairCode = arguments.getString(REPAIR_CODE);
         toiletIP = arguments.getString(TOILET_IP);
         errorCode = arguments.getString(ERRORCODE);
-        int position = arguments.getInt(POSITION) - 1;
+        int position = arguments.getInt(POSITION); //-1
         numSteps = arguments.getInt(NUM_STEPS);
 
         display_stepNum = rootView.findViewById(R.id.stepNum);

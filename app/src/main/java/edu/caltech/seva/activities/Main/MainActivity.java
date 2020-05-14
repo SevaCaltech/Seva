@@ -28,8 +28,6 @@ import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
-import com.amazonaws.mobile.client.AWSStartupHandler;
-import com.amazonaws.mobile.client.AWSStartupResult;
 import com.google.gson.Gson;
 
 import java.util.Set;
@@ -41,16 +39,14 @@ import edu.caltech.seva.activities.Main.Fragments.Notifications.Notifications;
 import edu.caltech.seva.activities.Main.Fragments.Settings.Settings;
 import edu.caltech.seva.activities.Main.Fragments.Toilets.Toilets;
 import edu.caltech.seva.activities.Repair.RepairActivity;
-import edu.caltech.seva.activities.Splashscreen.SplashActivity;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.RepairActivityData;
 
 //This is the main activity for the app which contains the nav drawer and its fragments
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, MainViewI {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    private MainPresenter presenter;
     public boolean isConnected;
     FragmentTransaction fragmentTransaction;
     private String currentFragmentTag;
@@ -80,7 +76,6 @@ public class MainActivity extends AppCompatActivity
         prefManager = new PrefManager(this);
 
         //presenter
-        presenter = new MainPresenter(this, null);
         AWSMobileClient.getInstance().initialize(this).execute();
 
         //sets up toolbar
@@ -276,20 +271,5 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
-    }
-
-    @Override
-    public void displayToilets(Set<String> toilets) {
-        //do nothing
-    }
-
-    @Override
-    public void displayNoToilets() {
-        //do nothing
-    }
-
-    @Override
-    public void displayError() {
-        //show toast for example but do nothing for now
     }
 }
