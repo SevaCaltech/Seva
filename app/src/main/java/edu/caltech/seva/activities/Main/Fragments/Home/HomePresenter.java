@@ -14,9 +14,14 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryLi
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import edu.caltech.seva.activities.MainApplication;
@@ -71,6 +76,10 @@ public class HomePresenter implements HomeContract.Presenter {
                     .dynamoDBClient(dynamoDBClient)
                     .awsConfiguration(configuration)
                     .build();
+
+            UpdateToken updateToken = new UpdateToken(dynamoDBClient, prefManager);
+            updateToken.execute();
+
             InitialSync sync = new InitialSync(view, prefManager, dynamoDBMapper);
             sync.execute();
         } else {
@@ -135,18 +144,27 @@ public class HomePresenter implements HomeContract.Presenter {
             final String email = userObj.getEmail();
             String phone = userObj.getPhone();
             String uid = userObj.getUserId();
+            Map<String, Boolean> userSettings = userObj.getUserSettings();
             ArrayList<String> toilets = new ArrayList<>(userObj.getToilets());
             final User user = new User(name, email, phone, uid, toilets);
+            boolean sendPush = userSettings.get("sendPush");
+            boolean sendSMS = userSettings.get("sendSMS");
 
             Log.d("log", "loading user...");
             Log.d("log", "\tdisplayName: " + name);
             Log.d("log", "\temail: " + email);
             Log.d("log", "\ttoilets: " + toilets);
             Log.d("log", "\tuid: " + uid);
+            Log.d("log", "\tphone: " + phone);
+            Log.d("log", "\tdeviceToken: " + userObj.getDeviceToken());
+            Log.d("log", String.format("\tuserSettings: sendPush [%s], sendSMS [%s]", sendPush,
+                    sendSMS));
             Log.d("log", "\tisGuest: " + prefManager.isGuest());
 
             Set<String> toiletSet = new HashSet<String>(toilets);
             prefManager.setToilets(toiletSet);
+            prefManager.setSendPush(sendPush);
+            prefManager.setSendSms(sendSMS);
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -171,8 +189,42 @@ public class HomePresenter implements HomeContract.Presenter {
                 numErrors = dbHelper.saveErrorCodeBatch(list, database);
                 total += numErrors;
                 publishProgress(toilet, Integer.toString(numErrors), Integer.toString(total));
-                database.close(); //might be not needed
+                database.close();
             }
+        }
+    }
+
+    private static class UpdateToken extends AsyncTask<Void, Void, String> {
+
+        private final AmazonDynamoDBClient dynamoDBClient;
+        private final PrefManager prefManager;
+
+        UpdateToken(AmazonDynamoDBClient dynamoDBClient, PrefManager prefManager) {
+            this.dynamoDBClient = dynamoDBClient;
+            this.prefManager = prefManager;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String token = prefManager.getDeviceToken();
+            if (token.equals("")) {
+                throw new RuntimeException("deviceToken can't be empty");
+            }
+
+            HashMap<String, AttributeValue> key = new HashMap<>();
+            key.put("uid", new AttributeValue().withS(prefManager.getUid()));
+
+            Map<String, AttributeValue> deviceToken = new HashMap<>();
+            deviceToken.put(":val1", new AttributeValue().withS(token));
+
+            UpdateItemRequest updateItemRequest = new UpdateItemRequest()
+                    .withTableName("SevaOperators")
+                    .withKey(key)
+                    .withUpdateExpression("set deviceToken = :val1")
+                    .withExpressionAttributeValues(deviceToken);
+            UpdateItemResult result = dynamoDBClient.updateItem(updateItemRequest);;
+            Log.d("updateDeviceToken", result.toString());
+            return result.toString();
         }
     }
 }

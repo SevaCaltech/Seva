@@ -1,6 +1,6 @@
 <resources>
     <!--main activity-->
-    <string name="app_name">Seva-Caltech</string>
+    <string name="app_name">Seva</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Seva App</string>
@@ -51,6 +51,8 @@
     <string name="language_option_text">Display language</string>
     <string name="audio_option_text">Audio settings</string>
     <string name="logout_option_text">Logout</string>
+    <string name="sms_switch_text">Send me SMS Notifications</string>
+    <string name="push_switch_text">Send me Push Notifications</string>
 
     <!--toilets fragment-->
     <string name="status_text">Status:</string>

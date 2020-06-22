@@ -18,6 +18,8 @@ public class UsersDO {
     private String _displayName;
     private String _phone;
     private String _email;
+    private String _deviceToken;
+    private Map<String, Boolean> _userSettings;
     private List<String> _toilets;
 
     @DynamoDBHashKey(attributeName = "uid")
@@ -65,4 +67,14 @@ public class UsersDO {
     public void setEmail(final String _email) {
         this._email = _email;
     }
+
+    @DynamoDBAttribute(attributeName = "deviceToken")
+    public String getDeviceToken() { return _deviceToken; }
+
+    public void setDeviceToken(final String _deviceToken) { this._deviceToken = _deviceToken; }
+
+    @DynamoDBAttribute(attributeName = "userSettings")
+    public Map<String, Boolean> getUserSettings() { return this._userSettings; }
+
+    public void setUserSettings(Map<String, Boolean> _userSettings) { this._userSettings = _userSettings; }
 }

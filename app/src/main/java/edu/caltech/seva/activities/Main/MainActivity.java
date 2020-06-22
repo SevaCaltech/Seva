@@ -28,8 +28,10 @@ import android.widget.Toast;
 
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.client.AWSMobileClient;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.Set;
 
 import edu.caltech.seva.R;
@@ -40,6 +42,7 @@ import edu.caltech.seva.activities.Main.Fragments.Settings.Settings;
 import edu.caltech.seva.activities.Main.Fragments.Toilets.Toilets;
 import edu.caltech.seva.activities.Repair.RepairActivity;
 import edu.caltech.seva.helpers.DbHelper;
+import edu.caltech.seva.helpers.MyInstanceIDListenerService;
 import edu.caltech.seva.helpers.PrefManager;
 import edu.caltech.seva.models.RepairActivityData;
 
@@ -74,8 +77,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefManager = new PrefManager(this);
-
-        //presenter
         AWSMobileClient.getInstance().initialize(this).execute();
 
         //sets up toolbar
@@ -228,6 +229,24 @@ public class MainActivity extends AppCompatActivity
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.clearNotifications(database);
         dbHelper.close();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FirebaseInstanceId.getInstance().deleteInstanceId();
+                    Log.d("logout", "deviceToken: " + prefManager.getDeviceToken());
+
+                    //manually call getToken to generate a new one
+                    FirebaseInstanceId.getInstance().getToken();
+                    Log.d("logout", "deviceToken: " + prefManager.getDeviceToken());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

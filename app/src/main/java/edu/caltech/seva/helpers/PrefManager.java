@@ -20,6 +20,10 @@ public class PrefManager {
     private static final String UID = "uid";
     private static final String IS_GUEST = "isGuest";
     private static final String CURRENT_JOB = "currentJob";
+    private static final String SEND_SMS = "sendSMS";
+    private static final String SEND_PUSH = "sendPush";
+    private static final String DEVICE_TOKEN = "deviceToken";
+
     public PrefManager(Context context) {
         this._context = context;
         pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
@@ -66,6 +70,21 @@ public class PrefManager {
         editor.commit();
     }
 
+    public void setSendSms(boolean sendSms) {
+        editor.putBoolean(SEND_SMS, sendSms);
+        editor.commit();
+    }
+
+    public void setSendPush(boolean sendPush) {
+        editor.putBoolean(SEND_PUSH, sendPush);
+        editor.commit();
+    }
+
+    public void setDeviceToken(String deviceToken) {
+        editor.putString(DEVICE_TOKEN, deviceToken);
+        editor.commit();
+    }
+
     public boolean isFirstTimeLaunch() { return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);}
     public Set<String> getToilets() { return pref.getStringSet(TOILETS,null);}
     public String getUsername() { return pref.getString(USERNAME, "");}
@@ -73,4 +92,7 @@ public class PrefManager {
     public String getUid() { return pref.getString(UID, "");}
     public Boolean isGuest() { return pref.getBoolean(IS_GUEST,false);}
     public String getCurrentJob() { return pref.getString(CURRENT_JOB, null);}
+    public boolean getSendSms() { return pref.getBoolean(SEND_SMS, true);}
+    public boolean getSendPush() { return pref.getBoolean(SEND_PUSH, false);}
+    public String getDeviceToken() { return pref.getString(DEVICE_TOKEN, "");}
 }

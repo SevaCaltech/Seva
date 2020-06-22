@@ -24,9 +24,7 @@ import edu.caltech.seva.activities.Main.adapters.LanguageAdapter;
  */
 public class Language extends Fragment implements SettingsContract.View {
     private static final String SETTINGS_TYPE = "SETTINGS_TYPE";
-    private static final int WRITTEN_SETTINGS = 0;
-    private static final int AUDIO_SETTINGS = 1;
-    private int settings_type;
+    private SettingsChoice settings_type;
     private TextView top_text;
 
     public Language() {
@@ -36,13 +34,13 @@ public class Language extends Fragment implements SettingsContract.View {
     /**
      * Static constructor for creating the Language Fragment.
      *
-     * @param settings_type Differentiates the written and audio language fragments
+     * @param choice Differentiates the written and audio language fragments
      * @return a Language fragment
      */
-    public static Language newInstance(int settings_type) {
+    public static Language newInstance(SettingsChoice choice) {
         Language fragment = new Language();
         Bundle bundle = new Bundle();
-        bundle.putInt(SETTINGS_TYPE, settings_type);
+        bundle.putInt(SETTINGS_TYPE, choice.getValue());
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -53,14 +51,13 @@ public class Language extends Fragment implements SettingsContract.View {
         View rootView = inflater.inflate(R.layout.language_fragment, null);
         top_text = rootView.findViewById(R.id.top_text);
         Button moreButton = rootView.findViewById(R.id.more_button);
-
         Bundle arguments = getArguments();
-        settings_type = arguments.getInt(SETTINGS_TYPE);
+        settings_type = arguments.getInt(SETTINGS_TYPE)==0? SettingsChoice.WRITTEN: SettingsChoice.AUDIO;
         switch (settings_type) {
-            case WRITTEN_SETTINGS:
+            case WRITTEN:
                 showWrittenSettings();
                 break;
-            case AUDIO_SETTINGS:
+            case AUDIO:
                 showAudioSettings();
                 break;
             default:
@@ -79,7 +76,7 @@ public class Language extends Fragment implements SettingsContract.View {
 
                 android.support.v7.app.AlertDialog.Builder confirm = new AlertDialog.Builder(getContext());
                 confirm.setTitle(lang_selected);
-                confirm.setMessage("Confirm " + lang_selected + " as the " + ((settings_type == WRITTEN_SETTINGS) ? "written " : "audio ") + "language");
+                confirm.setMessage("Confirm " + lang_selected + " as the " + ((settings_type == SettingsChoice.WRITTEN) ? "written " : "audio ") + "language");
                 confirm.setNegativeButton("CONFIRM", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

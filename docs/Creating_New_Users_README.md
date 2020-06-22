@@ -1,5 +1,30 @@
 # Creating new users
-*Note: this is automated in the `add_user.py` script*
+There are two ways to create a user for the app.
+ - One uses a python script, but requires some setup and knowledge of AWS CLI
+ - the other is manually through the AWS Management Console
+
+## Automated Option
+This is automated in the `scripts/add_user.py` script.
+
+#### Setup
+
+The AWS Command Line Interface (CLI) is needed to be setup in order to give access to the python script.
+
+1. Log into [IAM Management Console](https://console.aws.amazon.com/iam/home?#/home). And click on `Users` and your username.
+2. Verify that you have Administrator Access in the `Permissions` tab
+3. In the `Security credentials` tab click `Create access key` and save the Access key ID and the Secret Acecss Key
+4. Download the AWS CLI, then in the cmd prompt run `aws configure` and enter the corresponding Access and Secret keys.
+5. You might have to update environment variables for WS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_REGION
+
+You should now have the proper setup to run the `scripts/add_user.py` script.
+
+#### Run
+
+1. Configure the user's information in `scripts/config.ini` to the desired attribute values.
+2. run the command `python add_user.py` and verify in the corresponding AWS services that the user has been added successfully.
+
+
+## Manual Option
 Here are the steps to create new operators for the app from the AWS Management Console.
 
 #### Cognito

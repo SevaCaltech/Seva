@@ -1,52 +1,37 @@
 {
   "project_info": {
-    "project_number": "70488612250",
-    "firebase_url": "https://seva-eb93a.firebaseio.com",
-    "project_id": "seva-eb93a",
-    "storage_bucket": "seva-eb93a.appspot.com"
+    "project_number": "913294771738",
+    "firebase_url": "https://sevaapp-8d91d.firebaseio.com",
+    "project_id": "sevaapp-8d91d",
+    "storage_bucket": "sevaapp-8d91d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:70488612250:android:263a485a0b3a0bd9",
+        "mobilesdk_app_id": "1:913294771738:android:c20682d03fe647cab1b3a3",
         "android_client_info": {
           "package_name": "edu.caltech.seva"
         }
       },
       "oauth_client": [
         {
-          "client_id": "70488612250-6fs2lohshmppdiop13761g3poq2m9gol.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "edu.caltech.seva",
-            "certificate_hash": "47dcd603c23b527aa723fa7e528528b54bb7a611"
-          }
-        },
-        {
-          "client_id": "70488612250-nus46ojve3ispn9nuk4ic1ipgn4b1m5r.apps.googleusercontent.com",
+          "client_id": "913294771738-moiocrj8empue4dsn9e541tipq592k50.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBE_x5kJYfpqbmqE3iHhqfngWoCFhDKGRw"
+          "current_key": "AIzaSyD3CUZ5ee5OI48AqaRaZ4M7_A5fF0MugBQ"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "70488612250-nus46ojve3ispn9nuk4ic1ipgn4b1m5r.apps.googleusercontent.com",
+              "client_id": "913294771738-moiocrj8empue4dsn9e541tipq592k50.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

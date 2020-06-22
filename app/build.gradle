@@ -64,6 +64,9 @@ dependencies {
     //aws pinpoint
     implementation 'com.amazonaws:aws-android-sdk-pinpoint:2.7.+'
 
+    //firebase cloud messaging
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
+
     //leakcanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
