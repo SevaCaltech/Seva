@@ -226,6 +226,10 @@ public class Notifications extends Fragment implements RecyclerAdapter.ClickList
         dbHelper.deleteErrorCodeId(idToDelete, database);
         dbHelper.close();
         recyclerView.findViewHolderForAdapterPosition(posToDelete).itemView.startAnimation(animation);
+
+        //delete from dynamodb
+        IncomingError errorToDelete = adapter.get(idToDelete);
+        presenter.handleDeleteNotification(errorToDelete.getDate(), errorToDelete.getToiletIP());
     }
 
     @Override

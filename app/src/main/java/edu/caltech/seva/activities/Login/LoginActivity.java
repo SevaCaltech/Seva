@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,12 +35,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         awsLoginModel = new AWSLoginModel(this, this);
 
         login = findViewById(R.id.loginButton);
-        guest = findViewById(R.id.loginGuestButton);
+//        guest = findViewById(R.id.loginGuestButton);
         editUsername = findViewById(R.id.username);
         editPassword = findViewById(R.id.password);
         progressBar = findViewById(R.id.progressBar);
         login.setOnClickListener(this);
-        guest.setOnClickListener(this);
+//        guest.setOnClickListener(this);
     }
 
     @Override
@@ -53,12 +54,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         exception.printStackTrace();
         progressBar.setVisibility(View.INVISIBLE);
 
-        if (exception instanceof UserNotFoundException)
+        if (exception instanceof UserNotFoundException) {
             Toast.makeText(LoginActivity.this, "User does not exist.", Toast.LENGTH_LONG).show();
-        else if (exception instanceof NotAuthorizedException)
+        } else if (exception instanceof NotAuthorizedException) {
+            Log.d("LoginActivity", exception.getMessage());
             Toast.makeText(LoginActivity.this, "Incorrect username or password", Toast.LENGTH_LONG).show();
-        else
+        } else {
             Toast.makeText(LoginActivity.this, "Unknown error. Check internet connection.", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -67,9 +70,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.loginButton:
                 userLogin();
                 break;
-            case R.id.loginGuestButton:
-                awsLoginModel.signInGuest();
-                break;
+//            case R.id.loginGuestButton:
+//                awsLoginModel.signInGuest();
+//                break;
         }
     }
 

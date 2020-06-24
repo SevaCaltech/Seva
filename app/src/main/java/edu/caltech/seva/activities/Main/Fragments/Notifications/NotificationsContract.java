@@ -52,5 +52,13 @@ public class NotificationsContract {
          * the view to add each error to the notification recycler adapter.
          */
         void loadErrorInfo();
+
+        /**
+         * Deletes the error from the DynamoDB when the user has confirmed.
+         *
+         * @param timestamp the string of the timestamp of the error notification
+         * @param toiletID the IP address of the corresponding toilet unit
+         */
+        void handleDeleteNotification(String timestamp, String toiletID);
     }
 }

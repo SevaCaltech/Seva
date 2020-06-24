@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView;
     PrefManager prefManager;
     String[] PERMISSIONS = {
-            Manifest.permission.READ_SMS,
+//            Manifest.permission.READ_SMS,
             Manifest.permission.CALL_PHONE,
             Manifest.permission.CAMERA,
             Manifest.permission.ACCESS_COARSE_LOCATION,

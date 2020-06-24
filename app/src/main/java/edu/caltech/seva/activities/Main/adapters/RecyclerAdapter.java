@@ -108,6 +108,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         this.errorList.add(error);
     }
 
+    public IncomingError get(int id) {
+        for (IncomingError error : errorList ) {
+            if (error.getId() == id) {
+                return new IncomingError(error);
+            }
+        }
+        return null;
+    }
+
     public void clearAdapter() {
         this.errorList.clear();
     }

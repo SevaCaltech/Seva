@@ -6,14 +6,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import java.util.Objects;
 
@@ -22,7 +20,8 @@ import edu.caltech.seva.activities.Main.MainActivity;
 import edu.caltech.seva.helpers.PrefManager;
 
 /**
- * The settings fragment which the user can change language/audio settings, and sign out of the app.
+ * The settings fragment which the user can change language/audio settings, notifications settings,
+ * and sign out of the app.
  */
 public class Settings extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 

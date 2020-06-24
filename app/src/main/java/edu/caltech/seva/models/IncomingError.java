@@ -32,6 +32,22 @@ public class IncomingError {
 
     }
 
+    public IncomingError(IncomingError e) {
+           this.id = e.id;
+           this.errorCode = e.errorCode;
+           this.toiletIP = e.toiletIP;
+           this.date = e.date;
+           this.repairCode = e.repairCode;
+           this.repairTitle = e.repairTitle;
+           this.toiletName = e.toiletName;
+           this.toolInfo = e.toolInfo;
+           this.totalTime = e.totalTime;
+           this.totalSteps = e.totalSteps;
+           this.lat = e.lat;
+           this.lng = e.lng;
+           this.description = e.description;
+    }
+
     public int getId() {
         return id;
     }

@@ -88,22 +88,22 @@
         android:textColorHint="@color/secondary_text"/>
 
 
-    <Button
-        android:id="@+id/loginGuestButton"
-        android:layout_below="@id/loginButton"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="16dp"
-        android:layout_width="174dp"
-        android:layout_height="wrap_content"
-        android:text="@string/guest_button_text"
-        android:background="@color/accent"
-        android:textColor="@color/icons"
-        android:elevation="10dp"
-        android:minHeight="0dp"
-        android:paddingTop="11dp"
-        android:paddingBottom="9dp"
-        android:paddingRight="15dp"
-        android:paddingLeft="15dp"/>
+<!--    <Button-->
+<!--        android:id="@+id/loginGuestButton"-->
+<!--        android:layout_below="@id/loginButton"-->
+<!--        android:layout_centerInParent="true"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_width="174dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/guest_button_text"-->
+<!--        android:background="@color/accent"-->
+<!--        android:textColor="@color/icons"-->
+<!--        android:elevation="10dp"-->
+<!--        android:minHeight="0dp"-->
+<!--        android:paddingTop="11dp"-->
+<!--        android:paddingBottom="9dp"-->
+<!--        android:paddingRight="15dp"-->
+<!--        android:paddingLeft="15dp"/>-->
 
     <Button
         android:id="@+id/loginButton"
@@ -124,7 +124,7 @@
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/progressBar"
-        android:layout_below="@id/loginGuestButton"
+        android:layout_below="@id/loginButton"
         android:layout_centerInParent="true"
         android:layout_marginTop="23.5dp"
         style="@style/SpinKitView.Large.Pulse"

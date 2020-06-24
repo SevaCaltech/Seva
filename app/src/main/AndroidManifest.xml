@@ -75,11 +75,11 @@
                 android:value="edu.caltech.seva.activities.Main.MainActivity" />
         </activity>
 
-        <receiver android:name=".helpers.ReceiverSMS">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-            </intent-filter>
-        </receiver>
+<!--        <receiver android:name=".helpers.ReceiverSMS">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.provider.Telephony.SMS_RECEIVED" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <!--For customizing push notification UI-->
         <meta-data

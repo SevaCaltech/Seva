@@ -57,7 +57,6 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     }
 
 
-
     private static class UpdateSettings extends AsyncTask<Void, Void, String> {
 
         private final PrefManager prefManager;

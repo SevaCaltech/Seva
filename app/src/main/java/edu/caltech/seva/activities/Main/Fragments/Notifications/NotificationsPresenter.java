@@ -12,12 +12,21 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExp
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cognitoidentity.model.NotAuthorizedException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemResult;
+
+import org.w3c.dom.Attr;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.caltech.seva.activities.MainApplication;
+import edu.caltech.seva.activities.Repair.RepairActivity;
 import edu.caltech.seva.helpers.DbContract;
 import edu.caltech.seva.helpers.DbHelper;
 import edu.caltech.seva.helpers.PrefManager;
@@ -32,6 +41,8 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
     private PrefManager prefManager;
     private NotificationsContract.View view;
     private List<String> saved_toilets = new ArrayList<>();
+    private AmazonDynamoDBClient dynamoDBClient;
+    private AWSConfiguration configuration;
 
     /**
      * Constructor for the Presenter which takes a view and preferences to give access to the data.
@@ -42,6 +53,10 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
     NotificationsPresenter(NotificationsContract.View view, PrefManager prefManager) {
         this.prefManager = prefManager;
         this.view = view;
+        AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
+        configuration = AWSMobileClient.getInstance().getConfiguration();
+        dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
+        dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
     }
 
     @Override
@@ -73,11 +88,6 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
 
     @Override
     public void loadErrors() {
-//        AWSMobileClient.getInstance().initialize(MainApplication.getContext()).execute();
-        AWSCredentialsProvider credentialsProvider = AWSMobileClient.getInstance().getCredentialsProvider();
-        AWSConfiguration configuration = AWSMobileClient.getInstance().getConfiguration();
-        AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
-        dynamoDBClient.setRegion(Region.getRegion(Regions.US_EAST_1));
         DynamoDBMapper dynamoDBMapper = DynamoDBMapper.builder()
                 .dynamoDBClient(dynamoDBClient)
                 .awsConfiguration(configuration)
@@ -178,5 +188,23 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
         for (IncomingError error : incomingErrors) {
             view.addErrorToAdapter(error);
         }
+    }
+
+    @Override
+    public void handleDeleteNotification(final String timestamp, final String toiletID) {
+        final DynamoDBMapper dynamoDBMapper = new DynamoDBMapper(dynamoDBClient);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final ToiletsDO toilet = new ToiletsDO();
+                    toilet.setDeviceId("aws/things/" + toiletID);
+                    toilet.setTimestamp(timestamp);
+                    dynamoDBMapper.delete(toilet);
+                } catch (NotAuthorizedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }
