@@ -109,6 +109,7 @@ public class NotificationsPresenter implements NotificationsContract.Presenter {
             dbHelper = new DbHelper(MainApplication.getContext());
             database = dbHelper.getWritableDatabase();
             numErrors = dbHelper.saveErrorCodeBatch(list, database);
+            dbHelper.close();
             Log.d("log", "Toilet: " + toilet + " " + numErrors + " errors.");
         }
     }

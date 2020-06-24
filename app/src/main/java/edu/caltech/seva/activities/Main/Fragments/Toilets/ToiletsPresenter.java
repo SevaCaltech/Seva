@@ -70,6 +70,7 @@ public class ToiletsPresenter implements ToiletsContract.Presenter {
                 Toilet tempToilet = new Toilet(coords, description, toiletName, toilet_ips.get(i));
                 toiletObjs.add(tempToilet);
             }
+            cursor.close();
         }
         dbHelper.close();
         view.displayToilets(toiletObjs);
@@ -121,6 +122,7 @@ public class ToiletsPresenter implements ToiletsContract.Presenter {
                     DbHelper dbHelper = new DbHelper(MainApplication.getContext());
                     SQLiteDatabase database = dbHelper.getWritableDatabase();
                     int error_count = dbHelper.readNumToiletErrors(toilet.getToiletIp(), database);
+                    database.close();
                     dbHelper.close();
 
                     Log.d("log", "\terrors: " + error_count);

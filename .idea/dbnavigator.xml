@@ -23,7 +23,11 @@
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
-    <loaded-nodes />
+    <loaded-nodes>
+      <connection connection-id="ece4cca0-20d3-4a05-bcf6-505854404bc5">
+        <schema name="main" object-types="column, index, dataset trigger, view, constraint, table" />
+      </connection>
+    </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="ece4cca0-20d3-4a05-bcf6-505854404bc5">
@@ -37,6 +41,12 @@
     <connection id="ece4cca0-20d3-4a05-bcf6-505854404bc5" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="ece4cca0-20d3-4a05-bcf6-505854404bc5" dataset="main.repairStep-1" active-filter-id="">
+      <filter id="7751f034-ef23-4755-899f-f139ffdd5998" name="Filter 1" temporary="false" custom-name="false" type="basic" join-type="AND">
+        <condition column="stepInfo" operator="=" value="" active="true" />
+      </filter>
+    </filter-actions>
+    <filter-actions connection-id="ece4cca0-20d3-4a05-bcf6-505854404bc5" dataset="main.repairLookup" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="ece4cca0-20d3-4a05-bcf6-505854404bc5" dataset="main.notificationInfo" active-filter-id="" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">

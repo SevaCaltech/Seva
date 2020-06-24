@@ -59,6 +59,7 @@ public class HomePresenter implements HomeContract.Presenter {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         int count = (int) DatabaseUtils.queryNumEntries(database, DbContract.NOTIFY_TABLE);
         database.close();
+        dbHelper.close();
         view.showNumNotifications(count);
     }
 
@@ -190,6 +191,7 @@ public class HomePresenter implements HomeContract.Presenter {
                 total += numErrors;
                 publishProgress(toilet, Integer.toString(numErrors), Integer.toString(total));
                 database.close();
+                dbHelper.close();
             }
         }
     }

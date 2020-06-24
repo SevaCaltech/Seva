@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.Objects;
 
@@ -86,11 +87,22 @@ public class Settings extends Fragment implements View.OnClickListener, Compound
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
+
             case R.id.sms_switch:
-                presenter.handleNotificationSettings(SettingsChoice.SMS, isChecked);
+                if (((MainActivity) getActivity()).isConnected) {
+                    presenter.handleNotificationSettings(SettingsChoice.SMS, isChecked);
+                } else {
+                    buttonView.setChecked(!isChecked);
+                    Toast.makeText(getContext(), "Check Connection..", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.push_switch:
-                presenter.handleNotificationSettings(SettingsChoice.PUSH, isChecked);
+                if (((MainActivity) getActivity()).isConnected) {
+                    presenter.handleNotificationSettings(SettingsChoice.PUSH, isChecked);
+                } else {
+                    buttonView.setChecked(!isChecked);
+                    Toast.makeText(getContext(), "Check Connection..", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
